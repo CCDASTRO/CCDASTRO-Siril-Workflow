@@ -1,7 +1,9 @@
-CCDASTRO Siril Workflow 0.3.0 - development release.
+CCDASTRO Siril Workflow 0.4.0 - development release.
 
-Adds dedicated BlurXTerminator, NoiseXTerminator and StarXTerminator passes through a separately installed, activated RC-Astro standalone CLI. Includes tool settings, Auto/CPU selection, cancellable background processing, candidate review, generated-stars FITS export and recombination. Run BlurX on linear input before stretching.
+Adds optional GraXpert background extraction and denoising, plus SyQon Studio CLI models for Prism, Axiom, Parallax and Deep Gradient. Choices appear when provider installations are detected; use Optional tools: locate / rescan for custom paths. SyQon validates its own account/model access, and no vendor models, executables or credentials are bundled.
 
-Download CCDASTRO-Siril-Workflow-0.3.0-Setup.exe, close Siril, and run the installer. A portable ZIP and SHA256SUMS.txt are also supplied. Windows installers are currently unsigned.
+Processing runs on temporary copies in a cancellable worker. Compare and accept or discard the candidate. Axiom stars can be retained, exported and recombined after acceptance. RC-Astro tools remain available.
 
-All three RC-Astro tools passed CPU inference on a synthetic 256x256 RGB star field with unchanged source pixels. Native StarX worker/review handling and 28 automated checks passed. Large-image quality and GPU configurations need field testing. RC-Astro executables, models and licenses are not bundled.
+Native synthetic-image checks passed for both GraXpert operations and SyQon Prism Essential, Axiom Mini, Parallax Nano and Deep Gradient; other advertised premium models are not yet tested. 36 automated tests pass. Installer install/upgrade/uninstall checks are included in the release build.
+
+Close Siril and run CCDASTRO-Siril-Workflow-0.4.0-Setup.exe. ZIP and SHA256SUMS.txt are also available. Windows installers remain unsigned.

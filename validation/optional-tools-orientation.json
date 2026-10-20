@@ -1,0 +1,12 @@
+[
+  {
+    "provider": "syqon",
+    "identityAmountZero": true,
+    "maxPixelError": 0.0
+  },
+  {
+    "provider": "graxpert",
+    "identityAmountZero": true,
+    "maxPixelError": 0.0
+  }
+]

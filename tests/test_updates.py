@@ -8,8 +8,8 @@ class UpdateTests(unittest.TestCase):
         self.assertEqual(found['version'],'0.10.0');self.assertTrue(found['prerelease'])
         self.assertEqual(found['url'],RELEASES_URL+'/tag/v0.10.0')
     def test_no_update_or_untrusted_link(self):
-        self.assertIsNone(select_update([{'tag_name':'v0.3.0'}],'0.3.0'))
-        found=select_update([{'tag_name':'v0.4.0','html_url':'https://untrusted.invalid'}],'0.3.0')
+        self.assertIsNone(select_update([{'tag_name':'v1.0.0'}],'1.0.0'))
+        found=select_update([{'tag_name':'v1.1.0','html_url':'https://untrusted.invalid'}],'1.0.0')
         self.assertTrue(found['url'].startswith(RELEASES_URL))
         self.assertIsNone(version_tuple('v1.2.3/../../payload'))
     def test_invalid_response(self):

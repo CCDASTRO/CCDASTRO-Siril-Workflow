@@ -1,4 +1,4 @@
-"""CCDASTRO Siril Workflow 0.3.0.
+"""CCDASTRO Siril Workflow 0.4.0.
 Author: Chuck Faranda / CCDASTRO, Inc. https://ccdastro.com/
 Copyright (c) 2026 CCDASTRO, Inc. All rights reserved.
 Launch from Siril's Python scripts menu.

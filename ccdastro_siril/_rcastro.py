@@ -19,8 +19,8 @@ def process_args(executable,args,cancel=lambda:False,timeout=None):
     started=time.monotonic()
     try:
         while True:
-            if cancel():raise InterruptedError('RC-Astro operation cancelled. Candidate was not accepted.')
-            if timeout is not None and time.monotonic()-started>timeout:raise TimeoutError('RC-Astro did not respond to the tool query.')
+            if cancel():raise InterruptedError('External-tool operation cancelled. Candidate was not accepted.')
+            if timeout is not None and time.monotonic()-started>timeout:raise TimeoutError('The external tool did not respond to the query.')
             try:
                 stdout,stderr=process.communicate(timeout=.2)
                 return process.returncode,stdout,stderr
@@ -78,7 +78,7 @@ def read_result(path,expected_shape):
         if str(hdus[0].header.get('ROWORDER','BOTTOM-UP')).upper()=='TOP-DOWN':data=np.flip(data,axis=-2)
         if data.ndim==3 and data.shape[0] in (1,3):data=data[0] if data.shape[0]==1 else np.moveaxis(data,0,-1)
         result=image_array(data)
-    if result.shape!=expected_shape:raise ValueError('RC-Astro output dimensions do not match the input.')
+    if result.shape!=expected_shape:raise ValueError('External-tool output dimensions do not match the input.')
     return result
 
 def run_tool(data,settings,cancel=lambda:False):
@@ -103,7 +103,7 @@ def run_tool(data,settings,cancel=lambda:False):
             if isinstance(event,dict):events.append(event)
         errors=[str(e.get('message','RC-Astro failed.')) for e in events if e.get('event')=='error']
         if code or errors:raise RuntimeError('\n'.join(errors) or 'RC-Astro processing failed (exit '+str(code)+'). Check its installation, license and selected device.')
-        if cancel():raise InterruptedError('RC-Astro operation cancelled.')
+        if cancel():raise InterruptedError('External-tool operation cancelled.')
         if not output.is_file():raise RuntimeError('RC-Astro returned without a result image.')
         result=read_result(output,source.shape);stars=None
         if tool=='sxt' and settings.get('values',{}).get('stars',True):

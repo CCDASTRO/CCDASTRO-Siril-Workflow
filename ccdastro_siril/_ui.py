@@ -163,7 +163,28 @@ class WorkflowDialog(QDialog):
         self.use_stars=QPushButton('Recombine with generated stars');self.use_stars.setEnabled(False);self.use_stars.clicked.connect(self.recombine_generated);generated.addWidget(self.use_stars)
         self.save_stars=QPushButton('Save generated stars FITS');self.save_stars.setEnabled(False);self.save_stars.clicked.connect(self.export_generated_stars);generated.addWidget(self.save_stars)
         self.update_button=QPushButton('Check for updates');self.update_button.clicked.connect(self.check_updates);root.addWidget(self.update_button)
-        self.resize(1180,750);self.display()
+        setup=QPushButton('Optional tools: locate / rescan');setup.clicked.connect(self.setup_optional_tools);ll.addWidget(setup)
+        self.refresh_optional_tools()
+        self.resize(1180,790);self.display()
+    def refresh_optional_tools(self):
+        from ._external import discover
+        from PyQt6.QtCore import QSettings
+        while self.choice.count()>7:self.choice.removeItem(7)
+        store=QSettings('CCDASTRO','SirilWorkflow')
+        if discover('graxpert',store.value('optional/graxpert','')):
+            self.choice.addItem('GraXpert: background extraction',{'provider':'graxpert','operation':'background'})
+            self.choice.addItem('GraXpert: denoising',{'provider':'graxpert','operation':'denoise'})
+        if discover('syqon',store.value('optional/syqon','')):
+            self.choice.addItem('SyQon Studio tools…',{'provider':'syqon','operation':'prism-essential'})
+    def setup_optional_tools(self):
+        from ._external_ui import SetupDialog
+        if SetupDialog(self).exec():self.refresh_optional_tools()
+    def external_settings(self,parameters):
+        from ._external_ui import SettingsDialog
+        try:
+            dialog=SettingsDialog(parameters,self)
+            return dialog.parameters if dialog.exec() else None
+        except Exception as error:self.error(error);return None
     def check_updates(self):
         from ._updates import check_for_updates
         check_for_updates(self)
@@ -179,9 +200,18 @@ class WorkflowDialog(QDialog):
             if s.kind=='rcastro':
                 from ._rcastro import TOOLS
                 self.list.addItem(f"{i+1}. {TOOLS.get(s.parameters.get('tool'),'RC-Astro')} · {s.parameters.get('device','auto')}")
+            elif s.kind=='external':
+                from ._external import SYQON_MODELS
+                label=SYQON_MODELS.get(s.parameters.get('operation'),s.parameters.get('operation',''))
+                self.list.addItem(f"{i+1}. {s.parameters.get('provider','').title()}: {label}")
             else:self.list.addItem(f'{i+1}. {s.kind}: '+json.dumps(s.parameters))
     def add_step(self):
         index=self.choice.currentIndex()
+        if isinstance(self.choice.currentData(),dict):
+            parameters=self.external_settings(self.choice.currentData())
+            if parameters:
+                self.discard();self.steps.append(Step('external',parameters));self.refresh();self.list.setCurrentRow(len(self.steps)-1)
+            return
         if index>=4:
             from ._rcastro_ui import SettingsDialog
             dialog=SettingsDialog(['bxt','nxt','sxt'][index-4],parent=self)
@@ -194,6 +224,10 @@ class WorkflowDialog(QDialog):
     def edit_step(self):
         i=self.list.currentRow()
         if i<0:return
+        if self.steps[i].kind=='external':
+            parameters=self.external_settings(self.steps[i].parameters)
+            if parameters:self.discard();self.steps[i].parameters=parameters;self.refresh();self.list.setCurrentRow(i)
+            return
         if self.steps[i].kind=='rcastro':
             from ._rcastro_ui import SettingsDialog
             dialog=SettingsDialog(self.steps[i].parameters['tool'],self.steps[i].parameters,self)
@@ -224,7 +258,15 @@ class WorkflowDialog(QDialog):
         if i<0:return
         self.discard();s=self.steps[i]
         try:
-            if s.kind=='rcastro':
+            if s.kind=='external':
+                from ._rcastro_ui import ProcessingDialog
+                from ._external import run_external,discover
+                from PyQt6.QtCore import QSettings
+                settings=deepcopy(s.parameters);provider=settings['provider']
+                settings['executable']=discover(provider,QSettings('CCDASTRO','SirilWorkflow').value('optional/'+provider,''))
+                result=ProcessingDialog(self.session.current,settings,self,runner=run_external,title=provider.title()+' processing').execute()
+                a=result['image'];meta=deepcopy(self.session.metadata);self.pending_stars=result['stars'];self.pending_stars_method=result['method']
+            elif s.kind=='rcastro':
                 from ._rcastro_ui import ProcessingDialog
                 from ._rcastro import find_executable
                 from PyQt6.QtCore import QSettings
@@ -243,7 +285,7 @@ class WorkflowDialog(QDialog):
             self.accept_button.setEnabled(True);self.mode.setCurrentIndex(1);self.display();self.status.setText('Full-resolution Color & Tone candidate ready. Accept or discard.')
     def accept_candidate(self):
         if self.pending is None:return
-        if self.pending_step.kind=='rcastro' and self.pending_step.parameters['tool']=='sxt':
+        if (self.pending_step.kind=='rcastro' and self.pending_step.parameters['tool']=='sxt') or (self.pending_step.kind=='external' and self.pending_step.parameters.get('operation','').startswith('axiom')):
             self.generated_stars=self.pending_stars;self.stars_method=self.pending_stars_method
             self.use_stars.setEnabled(self.generated_stars is not None);self.save_stars.setEnabled(self.generated_stars is not None)
         self.session.accept(self.pending_step,self.pending);self.session.metadata=deepcopy(self.pending_meta)
@@ -287,9 +329,14 @@ class WorkflowDialog(QDialog):
             p=json.loads(Path(path).read_text(encoding='utf-8'))
             if p.get('schema')!=1 or p.get('host')!=self.host.title:raise ValueError('Preset belongs to a different host or schema.')
             steps=[Step(**s) for s in p['steps']]
-            if len(steps)>32 or any(s.kind not in ('stretch','background','green','native','color_tone','rcastro') for s in steps):raise ValueError('Invalid workflow steps.')
+            if len(steps)>32 or any(s.kind not in ('stretch','background','green','native','color_tone','rcastro','external') for s in steps):raise ValueError('Invalid workflow steps.')
             for step in steps:
                 if not isinstance(step.parameters,dict):raise ValueError('Step parameters must be an object.')
+                if step.kind=='external':
+                    from ._external import SYQON_MODELS
+                    provider=step.parameters.get('provider');operation=step.parameters.get('operation')
+                    if not ((provider=='graxpert' and operation in ('background','denoise')) or (provider=='syqon' and operation in SYQON_MODELS)):raise ValueError('Unsupported optional tool in preset.')
+                    step.parameters.pop('executable',None)
                 if step.kind=='rcastro':
                     if step.parameters.get('tool') not in ('bxt','nxt','sxt'):raise ValueError('Unsupported RC-Astro tool in preset.')
                     step.parameters.pop('executable',None)
@@ -303,7 +350,7 @@ class WorkflowDialog(QDialog):
         if not ok:return
         try:
             self.discard();self.pending=recombine(self.session.current,self.generated_stars,amount,self.stars_method)
-            self.pending_step=Step('recombine',{'stars_source':'accepted StarXTerminator pass','amount':amount,'method':self.stars_method})
+            self.pending_step=Step('recombine',{'stars_source':'accepted star-separation pass','amount':amount,'method':self.stars_method})
             self.pending_meta=deepcopy(self.session.metadata);self.accept_button.setEnabled(True);self.mode.setCurrentIndex(1);self.display()
             self.status.setText('Generated-stars recombination candidate ready. Compare and accept or discard.')
         except Exception as error:self.error(error)

@@ -1,0 +1,50 @@
+[
+  {
+    "provider": "graxpert",
+    "operation": "background",
+    "success": true,
+    "seconds": 11.88,
+    "sourceUnchanged": true,
+    "stars": false
+  },
+  {
+    "provider": "graxpert",
+    "operation": "denoise",
+    "success": true,
+    "seconds": 26.08,
+    "sourceUnchanged": true,
+    "stars": false
+  },
+  {
+    "provider": "syqon",
+    "operation": "prism-essential",
+    "success": true,
+    "seconds": 1.25,
+    "sourceUnchanged": true,
+    "stars": false
+  },
+  {
+    "provider": "syqon",
+    "operation": "axiom-mini",
+    "success": true,
+    "seconds": 2.2,
+    "sourceUnchanged": true,
+    "stars": true
+  },
+  {
+    "provider": "syqon",
+    "operation": "parallax-nano",
+    "success": true,
+    "seconds": 2.42,
+    "sourceUnchanged": true,
+    "stars": false
+  },
+  {
+    "provider": "syqon",
+    "operation": "deep-gradient",
+    "success": true,
+    "seconds": 6.47,
+    "sourceUnchanged": true,
+    "stars": false
+  }
+]

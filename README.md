@@ -1,6 +1,6 @@
 # CCDASTRO Siril Workflow
 
-Version 0.3.0 — development release, October 20, 2026.
+Version 0.4.0 — development release, October 20, 2026.
 
 A standalone image-processing workflow for Siril, with Color & Tone controls, masks, curves and review of each processing pass. This project maintains its own source, presets, tests and versioning.
 
@@ -59,6 +59,18 @@ Choose a tool, click **Add step**, set its controls, then **Preview selected ste
 - **StarXTerminator:** optional generated stars image and unscreening. Accept the starless candidate to retain its generated stars. Then use **Save generated stars FITS** or **Recombine with generated stars**. Unscreened stars use screen recombination; difference stars use addition. Generated stars remain in memory until the workflow closes; save them before closing if needed.
 
 All three tools completed CPU inference tests on a synthetic 256x256 RGB star field; source pixels were unchanged. A native StarX background-worker/review test also passed. This verifies integration and outputs, not image-quality performance across astronomical datasets or GPU configurations. No original user image was processed in those tests.
+
+## Optional GraXpert and SyQon tools
+
+GraXpert and SyQon choices appear in the pass selector when their installed executables are detected. Use **Optional tools: locate / rescan** to configure a custom installation or refresh detection after installing a provider. Local executable paths are kept out of shared presets. Existing passes fail cleanly if their application is subsequently removed.
+
+- **GraXpert:** AI background extraction (smoothing; subtraction/division) and denoising (strength), with Auto/CPU selection and an optional numeric AI model version. Install GraXpert separately; it manages its own models and may download one on first use.
+- **SyQon Studio CLI:** the model selector reads the CLI's advertised list. Supported families include Prism denoising, Axiom/Axiom Mini star separation, Parallax/Parallax Nano correction, star reduction and deblur, and Deep Gradient. Premium Parallax offers Aesthetics/Classic stages. Declare linear/non-linear input explicitly; incompatible domains and empty Parallax pipelines are rejected.
+- Axiom-generated stars are retained only after accepting the starless candidate, then can be exported or recombined. All tools process temporary float32 FITS copies with cancellable background execution and explicit review.
+
+The SyQon CLI manages its own acceleration, secure account access and models. Complete Studio sign-in and Required Items installation yourself. A listed model is not proof of installation or entitlement; the CLI validates those when it runs. The workflow never accesses account credentials or loads SyQon weight files directly. No vendor executables or models are bundled.
+
+Native checks passed on a synthetic RGB image for GraXpert background extraction and denoising (CPU), and SyQon Prism Essential, Axiom Mini with stars output, Parallax Nano and Deep Gradient (CLI-selected device). Other advertised premium models remain untested here. This validates the integration, not image quality across real datasets. See the provider documentation: [GraXpert](https://github.com/Steffenhir/GraXpert), [SyQon CLI](https://syqon.eu/develop).
 
 ## Development and verification
 

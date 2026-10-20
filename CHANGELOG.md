@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+
+- Detect installed GraXpert and SyQon providers; configure custom locations and rescan from the workflow.
+- GraXpert background extraction and denoising settings.
+- SyQon CLI model discovery, declared domains, Parallax stages and Axiom stars output handling.
+- Cancellable execution, fail-safe candidate review and external-application access checks.
+
 ## 0.3.0
 
 - Dedicated BlurXTerminator, NoiseXTerminator and StarXTerminator passes through a licensed RC-Astro CLI.
