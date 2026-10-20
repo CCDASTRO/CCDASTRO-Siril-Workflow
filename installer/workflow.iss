@@ -1,4 +1,4 @@
-#define AppVersion "0.4.1"
+#define AppVersion "0.4.2"
 [Setup]
 AppId=CCDASTRO.siril.Workflow
 AppName=CCDASTRO Siril Workflow
@@ -38,6 +38,7 @@ Source: "..\INSTALL.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\INSTALL-WINDOWS.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\THIRD_PARTY_NOTICES.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "menu-launcher.py"; DestDir: "{app}\CCDASTRO"; DestName: "CCDASTRO_Siril_Workflow.py"; Flags: ignoreversion
 [Icons]
 #ifndef TestBuild
 Name: "{group}\Installation guide"; Filename: "{app}\INSTALL-WINDOWS.txt"
@@ -83,6 +84,28 @@ begin
   Result := ExpandConstant('{localappdata}\siril\config.1.4.ini');
 #endif
 end;
+function IsWorkflowPath(Path: String): Boolean;
+var Plain: String;
+begin
+  Plain := Path;
+  StringChangeEx(Plain, '\\', '\', True);
+  Result := (CompareText(Plain, ExpandConstant('{app}')) = 0) or
+    (CompareText(Plain, ExpandConstant('{app}\CCDASTRO')) = 0) or
+    ((FileExists(Plain+'\CCDASTRO_Siril_Workflow.py')) and
+     FileExists(Plain+'\ccdastro_siril\_core.py'));
+end;
+function WithoutOldWorkflowPaths(Value: String): String;
+var Part: String; Separator: Integer;
+begin
+  Result := '';
+  while Value <> '' do begin
+    Separator := Pos(';', Value);
+    if Separator = 0 then Separator := Length(Value)+1;
+    Part := Copy(Value, 1, Separator-1);
+    Delete(Value, 1, Separator);
+    if (Part <> '') and not IsWorkflowPath(Part) then Result := Result+Part+';';
+  end;
+end;
 procedure RegisterScriptPath(Removing: Boolean);
 var Config, Encoded, Value, Backup, BackupBase: String; Lines: TArrayOfString; I, Counter: Integer;
 begin
@@ -92,7 +115,7 @@ begin
     Exit;
   end;
   if not LoadStringsFromFile(Config, Lines) then RaiseException('Could not read Siril configuration.');
-  Encoded := ExpandConstant('{app}');
+  Encoded := ExpandConstant('{app}\CCDASTRO');
   StringChangeEx(Encoded, '\', '\\', True);
   for I := 0 to GetArrayLength(Lines)-1 do begin
     if Pos('script_path=', Lines[I]) = 1 then begin
@@ -103,8 +126,8 @@ begin
         if StringChangeEx(Value, ';'+Encoded+';', ';', True) = 0 then Exit;
         Delete(Value,1,1);
       end else begin
-        if Pos(';'+Encoded+';', ';'+Value) > 0 then Exit;
-        Value := Value + Encoded + ';';
+        Value := WithoutOldWorkflowPaths(Value) + Encoded + ';';
+        if Value = Copy(Lines[I], 13, Length(Lines[I])) then Exit;
       end;
       BackupBase := Config + '.ccdastro-' + GetDateTimeString('yyyymmdd-hhnnss', '-', ':');
       Backup := BackupBase + '.bak';

@@ -8,6 +8,14 @@ New-Item -ItemType Directory -Path $target -Force | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Test installer compilation failed' }
 $fixture="[gui]`r`nscript_path=C:\\ExistingScripts;`r`nother_setting=keep`r`n"
 if ('siril' -eq 'siril') { [IO.File]::WriteAllText((Join-Path $target 'test-siril.ini'),$fixture,[Text.UTF8Encoding]::new($false)) }
+$legacy=Join-Path $testRoot 'old-test-workflow'
+New-Item -ItemType Directory -Path (Join-Path $legacy 'ccdastro_siril') -Force | Out-Null
+[IO.File]::WriteAllText((Join-Path $legacy 'CCDASTRO_Siril_Workflow.py'),'# legacy launcher')
+[IO.File]::WriteAllText((Join-Path $legacy 'ccdastro_siril\_core.py'),'# legacy package')
+[IO.File]::WriteAllText((Join-Path $legacy 'personal-image.fits'),'preserve')
+$legacyEncoded=$legacy.Replace('\','\\')
+$oldConfig=$fixture.Replace('C:\\ExistingScripts;','C:\\ExistingScripts;'+$legacyEncoded+';')
+[IO.File]::WriteAllText((Join-Path $target 'test-siril.ini'),$oldConfig,[Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $target 'personal-preset.json'),'{"keep":true}')
 if ('siril' -eq 'siril') {
  # Pre-create timestamp names to exercise collision handling deterministically.
@@ -21,11 +29,12 @@ if ('siril' -eq 'siril') {
 foreach ($pass in @('install','upgrade')) {
  $run=Start-Process -FilePath (Join-Path $testRoot 'InstallerTest.exe') -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=`"$target`"","/LOG=`"$testRoot\$pass.log`"") -WindowStyle Hidden -Wait -PassThru
  if ($run.ExitCode -ne 0) { throw "Installer $pass failed: $($run.ExitCode)" }
+ if (-not (Test-Path -LiteralPath (Join-Path $target 'CCDASTRO\CCDASTRO_Siril_Workflow.py'))) { throw 'Menu launcher missing' }
  if (-not (Test-Path -LiteralPath (Join-Path $target 'ccdastro_siril\_updates.py'))) { throw 'Installed package incomplete' }
 }
 if ('siril' -eq 'siril') {
  $config=[IO.File]::ReadAllText((Join-Path $target 'test-siril.ini'))
- $encoded=$target.Replace('\','\\')
+ $encoded=(Join-Path $target 'CCDASTRO').Replace('\','\\')
  $expected=$fixture.Replace('C:\\ExistingScripts;','C:\\ExistingScripts;'+$encoded+';')
  if ($config -ne $expected) { throw 'Siril settings modified unexpectedly or path duplicated' }
  if (-not (Get-ChildItem -LiteralPath $target -Filter '*.bak' | Where-Object Name -match '-[0-9]+\.bak$')) { throw 'Collision-safe settings backup missing' }
@@ -36,4 +45,5 @@ if ($uninstall.ExitCode -ne 0) { Get-Content -LiteralPath (Join-Path $testRoot '
 if (Test-Path -LiteralPath (Join-Path $target 'ccdastro_siril\_updates.py')) { throw 'Package was not uninstalled' }
 if ([IO.File]::ReadAllText((Join-Path $target 'personal-preset.json')) -ne '{"keep":true}') { throw 'Personal preset changed' }
 if ('siril' -eq 'siril' -and [IO.File]::ReadAllText((Join-Path $target 'test-siril.ini')) -ne $fixture) { throw 'Uninstall did not restore script paths' }
+if ([IO.File]::ReadAllText((Join-Path $legacy 'personal-image.fits')) -ne 'preserve') { throw 'Legacy personal image changed' }
 Write-Output 'Siril: isolated install, repeated upgrade, uninstall and personal-file preservation passed.'
