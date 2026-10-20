@@ -47,7 +47,7 @@ Siril's preferences and script-directory behavior are described in the [official
 
 ## 3. First launch and dependencies
 
-1. Open a small RGB or monochrome FITS image in Siril.
+1. Open a small RGB or monochrome image in Siril and wait until it has finished loading before launching the workflow.
 2. Launch the workflow from the Scripts menu or command above. Do not double-click the `.py` file in File Explorer.
 3. On first launch, the script uses Siril's Python environment to check NumPy, PyQt6 and Astropy and install missing or outdated packages. Internet access is needed for downloads. Read progress and errors in Siril's console. No separate Python installation or manual pip command is normally required.
 4. If a package update requests a restart, restart Siril and launch the script again. The workflow requires sirilpy 1.0.25 or later, supplied by a compatible Siril installation.
@@ -71,7 +71,7 @@ Native Siril passes require a saved FITS source with no unsaved pixel edits. Oth
 - **No module named ccdastro_siril:** copy/extract the complete companion folder beside the launcher.
 - **Missing package or download failure:** check the console, restore internet access, and relaunch. Do not install packages into an unrelated system Python.
 - **sirilpy too old:** update Siril to a compatible version and relaunch.
-- **Open an image first:** open a FITS image before starting the workflow.
+- **Open an image / wait for loading:** finish opening a single image before starting the workflow. If you launched too early, close the message, wait for Siril to finish loading, and launch again. A previous “no FITS image” error means the transfer API had no usable image at that moment; it does not by itself mean the source format is unsupported.
 - **Output already exists:** use a different filename; this build refuses overwrites.
 
 ## Updating or removing

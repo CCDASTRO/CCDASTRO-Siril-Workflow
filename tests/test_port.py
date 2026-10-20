@@ -3,7 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import numpy as np
 from ccdastro_siril import _core as core
-from ccdastro_siril._host import Host,normalize,to_siril
+from ccdastro_siril._host import Host,normalize,to_siril,ImageNotReadyError
 from ccdastro_siril._io import load_fits,save_fits
 
 class ProcessingTests(unittest.TestCase):
@@ -67,6 +67,7 @@ class SirilAdapterTests(unittest.TestCase):
     def test_new_file_and_original_restore(self):
         class Fake:
             def __init__(self,path):self.path=str(path);self.data=np.full((3,4,5),.2,np.float32);self.calls=[]
+            def is_image_loaded(self):return True
             def get_image_pixeldata(self,**kw):return self.data.copy()
             def get_image_fits_header(self,**kw):return ''
             def get_image_filename(self):return self.path
@@ -83,5 +84,20 @@ class SirilAdapterTests(unittest.TestCase):
             with self.assertRaises(ValueError):host.native(data,meta,{'command':'save','args':['bad.fit']})
             with self.assertRaises(ValueError):host.native(data,meta,{'command':'spcc','args':[]})
             np.testing.assert_allclose(fake.data,.2);self.assertEqual(fake.path,str(source))
+
+    def test_no_image_is_explained_before_pixel_request(self):
+        api=SimpleNamespace(is_image_loaded=lambda:False)
+        with self.assertRaisesRegex(ImageNotReadyError,'wait for loading to finish'):
+            Host(api).read()
+
+    def test_image_closed_during_read_is_explained(self):
+        def fail(**kwargs):raise RuntimeError('Server error: Failed to retrieve pixel data - no FITS image')
+        api=SimpleNamespace(is_image_loaded=lambda:True,get_image_pixeldata=fail)
+        with self.assertRaises(ImageNotReadyError):Host(api).read()
+
+    def test_other_transfer_errors_remain_visible(self):
+        def fail(**kwargs):raise RuntimeError('pipe transfer failed')
+        api=SimpleNamespace(is_image_loaded=lambda:True,get_image_pixeldata=fail)
+        with self.assertRaisesRegex(RuntimeError,'pipe transfer failed'):Host(api).read()
 
 if __name__=='__main__':unittest.main()

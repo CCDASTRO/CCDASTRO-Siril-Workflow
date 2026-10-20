@@ -15,12 +15,28 @@ def to_siril(data):
     a=image_array(data)
     return np.ascontiguousarray(np.moveaxis(a,-1,0) if a.ndim==3 else a[None,...],dtype=np.float32)
 
+class ImageNotReadyError(RuntimeError):
+    """The host has no usable single image available for transfer."""
+
+IMAGE_NOT_READY = ('Open a single image in Siril and wait for loading to finish, '
+                   'then launch CCDASTRO Workflow again. No image was changed.')
+
 class Host:
     title='Siril'
     native_commands={'subsky','platesolve','spcc','starnet','autostretch','saturation','rmgreen','denoise','deconv','ght'}
     def __init__(self,siril): self.api=siril
     def read(self):
-        a=normalize(self.api.get_image_pixeldata(preview=False))
+        if not self.api.is_image_loaded():
+            raise ImageNotReadyError(IMAGE_NOT_READY)
+        try:
+            pixels=self.api.get_image_pixeldata(preview=False)
+        except Exception as error:
+            if 'no fits image' in str(error).lower():
+                raise ImageNotReadyError(IMAGE_NOT_READY) from error
+            raise
+        if pixels is None:
+            raise ImageNotReadyError(IMAGE_NOT_READY)
+        a=normalize(pixels)
         return a,{'fits_header':self.api.get_image_fits_header(return_as='str') or '', 'source_path':self.api.get_image_filename() or ''}
     def save(self,data,metadata,path):
         path=Path(path)

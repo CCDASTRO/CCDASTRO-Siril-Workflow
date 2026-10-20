@@ -13,13 +13,16 @@ def main():
     if not sirilpy.ensure_installed('numpy','PyQt6','astropy',version_constraints=['>=1.24','>=6.5','>=5.3']):
         raise RuntimeError('Required Python packages could not be installed. See the Siril console and INSTALL.md.')
     from PyQt6.QtWidgets import QApplication,QMessageBox
-    from ccdastro_siril._host import Host
+    from ccdastro_siril._host import Host,ImageNotReadyError
     from ccdastro_siril._ui import WorkflowDialog
     api=sirilpy.SirilInterface();api.connect()
     app=QApplication.instance() or QApplication([])
     try:
         api.cmd('requires','1.4.4')
         window=WorkflowDialog(Host(api));window.exec()
+    except ImageNotReadyError as e:
+        api.log(str(e))
+        QMessageBox.information(None,'CCDASTRO Siril Workflow',str(e))
     except Exception as e:
         QMessageBox.warning(None,'CCDASTRO Siril Workflow',str(e))
         raise
