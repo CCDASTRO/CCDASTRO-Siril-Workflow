@@ -1,10 +1,10 @@
 # Install and update CCDASTRO Siril Workflow
 
-Version 0.2.0 — development release for Windows. Tested with Siril 1.4.4.
+Version 0.2.1 — development release for Windows. Tested with Siril 1.4.4.
 
 ## Recommended: Windows installer
 
-1. Download `CCDASTRO-Siril-Workflow-0.2.0-Setup.exe` from the [GitHub releases page](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases).
+1. Download `CCDASTRO-Siril-Workflow-0.2.1-Setup.exe` from the [GitHub releases page](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases).
 2. Close Siril and its workflow windows. The installer checks this and asks you to close the host if it is running.
 3. Run the installer under your normal Windows account. It installs for that account without administrator access.
 4. Complete the wizard. The Start menu gets installation-guide, downloads/updates and uninstall shortcuts.

@@ -1,6 +1,6 @@
 # CCDASTRO Siril Workflow
 
-Version 0.2.0 — development release, October 20, 2026.
+Version 0.2.1 â€” development release, October 20, 2026.
 
 A standalone image-processing workflow for Siril, with Color & Tone controls, masks, curves and review of each processing pass. This project maintains its own source, presets, tests and versioning.
 

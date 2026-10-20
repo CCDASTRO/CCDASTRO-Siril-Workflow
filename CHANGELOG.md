@@ -1,6 +1,7 @@
 # Changelog
 
-## 0.2.0
+## 0.2.1
+- Enforce UTF-8 documentation in release packages.
 
 - Per-user Windows installer with host-running protection and uninstall support.
 - Reusable installer upgrade path and Start menu documentation/download shortcuts.
