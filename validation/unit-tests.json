@@ -1,8 +1,8 @@
 {
   "date": "2026-10-20",
-  "tests": 19,
-  "passed": 19,
+  "tests": 28,
+  "passed": 28,
   "pythonEnvironment": "Siril Python environment with NumPy, PyQt6, Astropy",
   "colorToneReferenceTolerance": 2e-07,
-  "version": "0.2.1"
+  "version": "0.3.0"
 }

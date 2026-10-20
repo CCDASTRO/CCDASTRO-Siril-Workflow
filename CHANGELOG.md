@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Dedicated BlurXTerminator, NoiseXTerminator and StarXTerminator passes through a licensed RC-Astro CLI.
+- Cancellable background processing and explicit candidate acceptance.
+- Generated stars export and screen/add recombination after accepting a StarX pass.
+- Executable discovery, device control, license/parameter validation and FITS row-order handling.
+
 ## 0.2.1
 - Enforce UTF-8 documentation in release packages.
 

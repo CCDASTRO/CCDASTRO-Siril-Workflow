@@ -1,10 +1,10 @@
 # Install and update CCDASTRO Siril Workflow
 
-Version 0.2.1 — development release for Windows. Tested with Siril 1.4.4.
+Version 0.3.0 — development release for Windows. Tested with Siril 1.4.4.
 
 ## Recommended: Windows installer
 
-1. Download `CCDASTRO-Siril-Workflow-0.2.1-Setup.exe` from the [GitHub releases page](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases).
+1. Download `CCDASTRO-Siril-Workflow-0.3.0-Setup.exe` from the [GitHub releases page](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases).
 2. Close Siril and its workflow windows. The installer checks this and asks you to close the host if it is running.
 3. Run the installer under your normal Windows account. It installs for that account without administrator access.
 4. Complete the wizard. The Start menu gets installation-guide, downloads/updates and uninstall shortcuts.
@@ -30,6 +30,18 @@ Close the old workflow first. Remove the old extracted workflow directory from S
 ## Portable ZIP option
 
 Extract the ZIP into a permanent writable folder. Keep the launcher file and its companion package folder together. Add the folder containing `CCDASTRO_Siril_Workflow.py` to Siril's Script Storage Directories, rescan and Apply. Launch it from Siril after opening an image.
+
+## RC-Astro tools
+
+Version 0.3.0 adds dedicated **BlurXTerminator**, **NoiseXTerminator** and **StarXTerminator** choices in the processing-pass selector. Install the [RC-Astro standalone CLI](https://www.rc-astro.com/stand-alone-rc-astro-tools/) and activate the products you own through RC-Astro. The CLI must expose schema version 4 or later. This workflow checks `license.valid`; it does not activate licenses, collect activation codes, or bundle vendor software/models.
+
+Choose a tool, click **Add step**, set its controls, then **Preview selected step**. The executable is detected at the standard Windows location or on PATH; Browse CLI selects another installation. That local path is saved separately from shareable presets. Auto selects the CLI's compute device; CPU provides a software alternative. The CLI uses its default licensed model and may download that model on first use. Processing runs in a cancellable background task on a temporary float32 FITS copy. Failures are rejected. Compare Current/Candidate and explicitly accept or discard the result.
+
+- **BlurXTerminator:** stellar/nonstellar sharpening, star halos, automatic/manual PSF, and Correct Only. Confirm that the input is linear and run this before stretching. The workflow cannot determine linearity automatically.
+- **NoiseXTerminator:** denoise strength and iterations. Advanced frequency/channel-specific settings are not exposed in this release.
+- **StarXTerminator:** optional generated stars image and unscreening. Accept the starless candidate to retain its generated stars. Then use **Save generated stars FITS** or **Recombine with generated stars**. Unscreened stars use screen recombination; difference stars use addition. Generated stars remain in memory until the workflow closes; save them before closing if needed.
+
+All three tools completed CPU inference tests on a synthetic 256x256 RGB star field; source pixels were unchanged. A native StarX background-worker/review test also passed. This verifies integration and outputs, not image-quality performance across astronomical datasets or GPU configurations. No original user image was processed in those tests.
 
 ## First processing check
 

@@ -138,13 +138,13 @@ DEFAULTS={'stretch':{'target':.23},'background':{'amount':1.},'green':{'amount':
 
 class WorkflowDialog(QDialog):
     def __init__(self,host,parent=None):
-        super().__init__(parent);self.host=host;data,metadata=host.read();self.session=Session(data,metadata);self.pending=None;self.pending_meta=None;self.pending_step=None;self.steps=[]
+        super().__init__(parent);self.host=host;data,metadata=host.read();self.session=Session(data,metadata);self.pending=None;self.pending_meta=None;self.pending_step=None;self.steps=[];self.pending_stars=None;self.generated_stars=None;self.stars_method='screen';self.pending_stars_method='screen'
         self.setWindowTitle(f'CCDASTRO {host.title} Workflow {VERSION} — development');root=QVBoxLayout(self)
         note=QLabel('Independent port. Work on copies, review each result, then export. Native commands are optional and require host-specific setup.');note.setWordWrap(True);root.addWidget(note)
         body=QSplitter();root.addWidget(body,1);left=QWidget();ll=QVBoxLayout(left);body.addWidget(left)
         self.list=QListWidget();ll.addWidget(self.list,1)
-        self.choice=QComboBox();self.choice.addItems(['Linked automatic stretch','Background plane (simple model)','Green suppression','Host-native command']);ll.addWidget(self.choice)
-        for text,callback in [('Add step',self.add_step),('Edit selected JSON parameters',self.edit_step),('Move up',lambda:self.move(-1)),('Move down',lambda:self.move(1)),('Remove step',self.remove_step),('Save preset',self.save_preset),('Load preset',self.load_preset)]:
+        self.choice=QComboBox();self.choice.addItems(['Linked automatic stretch','Background plane (simple model)','Green suppression','Host-native command','BlurXTerminator','NoiseXTerminator','StarXTerminator']);ll.addWidget(self.choice)
+        for text,callback in [('Add step',self.add_step),('Edit selected parameters',self.edit_step),('Move up',lambda:self.move(-1)),('Move down',lambda:self.move(1)),('Remove step',self.remove_step),('Save preset',self.save_preset),('Load preset',self.load_preset)]:
             b=QPushButton(text);b.clicked.connect(callback);ll.addWidget(b)
         right=QWidget();rl=QVBoxLayout(right);body.addWidget(right)
         self.mode=QComboBox();self.mode.addItems(['Current','Candidate']);rl.addWidget(self.mode);self.mode.currentIndexChanged.connect(self.display)
@@ -159,6 +159,9 @@ class WorkflowDialog(QDialog):
         if host.title!='Siril':
             self.publish_button=QPushButton('Open result as new host document');self.publish_button.clicked.connect(self.publish);root.addWidget(self.publish_button)
         stars=QPushButton('Review recombination with a registered stars FITS image');stars.clicked.connect(self.recombine_stars);root.addWidget(stars)
+        generated=QHBoxLayout();root.addLayout(generated)
+        self.use_stars=QPushButton('Recombine with generated stars');self.use_stars.setEnabled(False);self.use_stars.clicked.connect(self.recombine_generated);generated.addWidget(self.use_stars)
+        self.save_stars=QPushButton('Save generated stars FITS');self.save_stars.setEnabled(False);self.save_stars.clicked.connect(self.export_generated_stars);generated.addWidget(self.save_stars)
         self.update_button=QPushButton('Check for updates');self.update_button.clicked.connect(self.check_updates);root.addWidget(self.update_button)
         self.resize(1180,750);self.display()
     def check_updates(self):
@@ -172,14 +175,30 @@ class WorkflowDialog(QDialog):
     def error(self,e):QMessageBox.warning(self,'CCDASTRO workflow',str(e))
     def refresh(self):
         self.list.clear()
-        for i,s in enumerate(self.steps):self.list.addItem(f'{i+1}. {s.kind}: '+json.dumps(s.parameters))
+        for i,s in enumerate(self.steps):
+            if s.kind=='rcastro':
+                from ._rcastro import TOOLS
+                self.list.addItem(f"{i+1}. {TOOLS.get(s.parameters.get('tool'),'RC-Astro')} · {s.parameters.get('device','auto')}")
+            else:self.list.addItem(f'{i+1}. {s.kind}: '+json.dumps(s.parameters))
     def add_step(self):
-        kind=['stretch','background','green','native'][self.choice.currentIndex()]
+        index=self.choice.currentIndex()
+        if index>=4:
+            from ._rcastro_ui import SettingsDialog
+            dialog=SettingsDialog(['bxt','nxt','sxt'][index-4],parent=self)
+            if dialog.exec():
+                self.discard();self.steps.append(Step('rcastro',dialog.parameters));self.refresh();self.list.setCurrentRow(len(self.steps)-1)
+            return
+        kind=['stretch','background','green','native'][index]
         p=deepcopy(DEFAULTS.get(kind,{'command':'autostretch','args':[]} if self.host.title=='Siril' else {'command':'stat_stretch','preset':{'target_median':.23}}))
         self.discard();self.steps.append(Step(kind,p));self.refresh();self.list.setCurrentRow(len(self.steps)-1)
     def edit_step(self):
         i=self.list.currentRow()
         if i<0:return
+        if self.steps[i].kind=='rcastro':
+            from ._rcastro_ui import SettingsDialog
+            dialog=SettingsDialog(self.steps[i].parameters['tool'],self.steps[i].parameters,self)
+            if dialog.exec():self.discard();self.steps[i].parameters=dialog.parameters;self.refresh();self.list.setCurrentRow(i)
+            return
         text,ok=QInputDialog.getMultiLineText(self,'Step parameters','JSON parameters',json.dumps(self.steps[i].parameters,indent=2))
         if ok:
             try:
@@ -205,7 +224,14 @@ class WorkflowDialog(QDialog):
         if i<0:return
         self.discard();s=self.steps[i]
         try:
-            if s.kind=='native':a,meta=self.host.native(self.session.current,self.session.metadata,s.parameters)
+            if s.kind=='rcastro':
+                from ._rcastro_ui import ProcessingDialog
+                from ._rcastro import find_executable
+                from PyQt6.QtCore import QSettings
+                settings=deepcopy(s.parameters);settings['executable']=QSettings('CCDASTRO','SirilWorkflow').value('rcastro/executable','') or find_executable()
+                result=ProcessingDialog(self.session.current,settings,self).execute()
+                a=result['image'];meta=deepcopy(self.session.metadata);self.pending_stars=result['stars'];self.pending_stars_method=result['method']
+            elif s.kind=='native':a,meta=self.host.native(self.session.current,self.session.metadata,s.parameters)
             else:a=self.session.candidate(s);meta=deepcopy(self.session.metadata)
             self.pending=image_array(a);self.pending_step=deepcopy(s);self.pending_meta=meta;self.accept_button.setEnabled(True);self.mode.setCurrentIndex(1);self.display()
             self.status.setText('Candidate ready. Accept commits only to the workflow copy; Discard keeps the previous result.')
@@ -217,9 +243,12 @@ class WorkflowDialog(QDialog):
             self.accept_button.setEnabled(True);self.mode.setCurrentIndex(1);self.display();self.status.setText('Full-resolution Color & Tone candidate ready. Accept or discard.')
     def accept_candidate(self):
         if self.pending is None:return
+        if self.pending_step.kind=='rcastro' and self.pending_step.parameters['tool']=='sxt':
+            self.generated_stars=self.pending_stars;self.stars_method=self.pending_stars_method
+            self.use_stars.setEnabled(self.generated_stars is not None);self.save_stars.setEnabled(self.generated_stars is not None)
         self.session.accept(self.pending_step,self.pending);self.session.metadata=deepcopy(self.pending_meta)
         self.discard();self.status.setText('Pass accepted. Additional passes start from this result. Source remains unchanged.')
-    def discard(self):self.pending=None;self.pending_step=None;self.pending_meta=None;self.accept_button.setEnabled(False);self.mode.setCurrentIndex(0);self.display()
+    def discard(self):self.pending_stars=None;self.pending=None;self.pending_step=None;self.pending_meta=None;self.accept_button.setEnabled(False);self.mode.setCurrentIndex(0);self.display()
     def save_result(self):
         path,_=QFileDialog.getSaveFileName(self,'Save a new result','','FITS image (*.fit)')
         if not path:return
@@ -249,7 +278,7 @@ class WorkflowDialog(QDialog):
         if path:
             try:
                 if Path(path).exists():raise FileExistsError('Choose a new preset filename.')
-                Path(path).write_text(json.dumps({'schema':1,'host':self.host.title,'steps':[asdict(s) for s in self.steps]},indent=2),encoding='utf-8')
+                Path(path).write_text(json.dumps({'schema':1,'host':self.host.title,'steps':[dict(asdict(s),parameters={k:v for k,v in s.parameters.items() if k!='executable'}) for s in self.steps]},indent=2),encoding='utf-8')
             except Exception as e:self.error(e)
     def load_preset(self):
         path,_=QFileDialog.getOpenFileName(self,'Load workflow preset','','JSON (*.json)')
@@ -258,6 +287,30 @@ class WorkflowDialog(QDialog):
             p=json.loads(Path(path).read_text(encoding='utf-8'))
             if p.get('schema')!=1 or p.get('host')!=self.host.title:raise ValueError('Preset belongs to a different host or schema.')
             steps=[Step(**s) for s in p['steps']]
-            if len(steps)>32 or any(s.kind not in ('stretch','background','green','native','color_tone') for s in steps):raise ValueError('Invalid workflow steps.')
+            if len(steps)>32 or any(s.kind not in ('stretch','background','green','native','color_tone','rcastro') for s in steps):raise ValueError('Invalid workflow steps.')
+            for step in steps:
+                if not isinstance(step.parameters,dict):raise ValueError('Step parameters must be an object.')
+                if step.kind=='rcastro':
+                    if step.parameters.get('tool') not in ('bxt','nxt','sxt'):raise ValueError('Unsupported RC-Astro tool in preset.')
+                    step.parameters.pop('executable',None)
             self.discard();self.steps=steps;self.refresh()
         except Exception as e:self.error(e)
+
+    def recombine_generated(self):
+        if self.generated_stars is None:return
+        from ._core import recombine
+        amount,ok=QInputDialog.getDouble(self,'Generated stars','Stars brightness multiplier',1,0,2,2)
+        if not ok:return
+        try:
+            self.discard();self.pending=recombine(self.session.current,self.generated_stars,amount,self.stars_method)
+            self.pending_step=Step('recombine',{'stars_source':'accepted StarXTerminator pass','amount':amount,'method':self.stars_method})
+            self.pending_meta=deepcopy(self.session.metadata);self.accept_button.setEnabled(True);self.mode.setCurrentIndex(1);self.display()
+            self.status.setText('Generated-stars recombination candidate ready. Compare and accept or discard.')
+        except Exception as error:self.error(error)
+    def export_generated_stars(self):
+        if self.generated_stars is None:return
+        path,_=QFileDialog.getSaveFileName(self,'Save generated stars as a new FITS','','FITS (*.fit)')
+        if not path:return
+        if not path.lower().endswith(('.fit','.fits','.fts')):path+='.fit'
+        try:self.host.save(self.generated_stars,self.session.metadata,path);self.status.setText('Generated stars saved: '+path)
+        except Exception as error:self.error(error)

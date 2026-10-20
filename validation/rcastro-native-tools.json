@@ -1,0 +1,38 @@
+[
+  {
+    "tool": "bxt",
+    "success": true,
+    "seconds": 3.98,
+    "shape": [
+      256,
+      256,
+      3
+    ],
+    "sourceUnchanged": true,
+    "starsOutput": false
+  },
+  {
+    "tool": "nxt",
+    "success": true,
+    "seconds": 1.98,
+    "shape": [
+      256,
+      256,
+      3
+    ],
+    "sourceUnchanged": true,
+    "starsOutput": false
+  },
+  {
+    "tool": "sxt",
+    "success": true,
+    "seconds": 1.72,
+    "shape": [
+      256,
+      256,
+      3
+    ],
+    "sourceUnchanged": true,
+    "starsOutput": true
+  }
+]
