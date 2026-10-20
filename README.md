@@ -12,6 +12,10 @@ Includes Color & Tone Studio and dedicated optional RC-Astro, GraXpert and SyQon
 
 [Download the Windows installer or ZIP](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases). Use the Windows installer for first installation and later upgrades. See [INSTALL.md](INSTALL.md) for exact steps, migration from earlier ZIP copies, and troubleshooting. The workflow's **Check for updates** button finds new releases and opens their download page. Each installer uses a stable per-user folder and preserves separately saved images/presets.
 
+After installation, restart Siril and choose **Scripts > CCDASTRO > CCDASTRO_Siril_Workflow**.
+
+The v0.4.2 installer and CCDASTRO menu placement were confirmed working by a user on October 20, 2026. Automated checks passed all 36 workflow tests and the isolated install, upgrade, legacy-path migration and uninstall tests.
+
 ## What works
 
 - Work on a copy of an open RGB or monochrome image.

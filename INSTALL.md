@@ -25,7 +25,7 @@ You can also use **Start > CCDASTRO Siril Workflow > Downloads and updates**. Th
 
 ## Moving from the earlier ZIP build
 
-Close the old workflow first. Remove the old extracted workflow directory from Siril's Script Storage Directories after the installer has registered its new folder. Preserve any personal presets/images from the old folder. This avoids two menu entries. Do not remove other script directories.
+Close Siril and the old workflow, then run the current installer. Setup removes recognized older workflow directories from Siril's script search path and registers the new CCDASTRO menu folder. Restart Siril afterward. Old extracted folders remain on disk; preserve any personal presets/images before archiving or removing them. With custom settings or an unrecognized copy, remove only that old workflow entry from Script Storage Directories. Keep unrelated script directories.
 
 ## Portable ZIP option
 
