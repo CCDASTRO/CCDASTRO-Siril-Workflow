@@ -2,7 +2,7 @@ from pathlib import Path
 import zipfile,hashlib
 root=Path(__file__).resolve().parent.parent
 out=root/'dist';out.mkdir(exist_ok=True)
-version='0.4.0';label='Siril';package='ccdastro_siril'
+version='0.4.1';label='Siril';package='ccdastro_siril'
 archive=out/f'CCDASTRO-{label}-Workflow-{version}.zip'
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
     for relative in ['CCDASTRO_Siril_Workflow.py',package,'presets','README.md','INSTALL.md','INSTALL-WINDOWS.txt','LICENSE.txt','THIRD_PARTY_NOTICES.md']:

@@ -1,4 +1,4 @@
-#define AppVersion "0.4.0"
+#define AppVersion "0.4.1"
 [Setup]
 AppId=CCDASTRO.siril.Workflow
 AppName=CCDASTRO Siril Workflow
@@ -84,7 +84,7 @@ begin
 #endif
 end;
 procedure RegisterScriptPath(Removing: Boolean);
-var Config, Encoded, Value, Backup: String; Lines: TArrayOfString; I: Integer;
+var Config, Encoded, Value, Backup, BackupBase: String; Lines: TArrayOfString; I, Counter: Integer;
 begin
   Config := SirilConfig();
   if not FileExists(Config) then begin
@@ -106,7 +106,13 @@ begin
         if Pos(';'+Encoded+';', ';'+Value) > 0 then Exit;
         Value := Value + Encoded + ';';
       end;
-      Backup := Config + '.ccdastro-' + GetDateTimeString('yyyymmdd-hhnnss', '-', ':') + '.bak';
+      BackupBase := Config + '.ccdastro-' + GetDateTimeString('yyyymmdd-hhnnss', '-', ':');
+      Backup := BackupBase + '.bak';
+      Counter := 0;
+      while FileExists(Backup) do begin
+        Counter := Counter + 1;
+        Backup := BackupBase + '-' + IntToStr(Counter) + '.bak';
+      end;
       if not FileCopy(Config, Backup, True) then RaiseException('Could not back up Siril settings. Registration was not changed.');
       Lines[I] := 'script_path='+Value;
       if not SaveStringsToUTF8FileWithoutBOM(Config+'.ccdastro-new', Lines, False) then RaiseException('Could not prepare updated Siril settings.');

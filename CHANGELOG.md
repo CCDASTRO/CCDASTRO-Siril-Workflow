@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- Make Siril settings-backup filenames unique during rapid install/uninstall operations.
+- Retain detailed uninstall diagnostics in installer lifecycle tests.
+
 ## 0.4.0
 
 - Detect installed GraXpert and SyQon providers; configure custom locations and rescan from the workflow.

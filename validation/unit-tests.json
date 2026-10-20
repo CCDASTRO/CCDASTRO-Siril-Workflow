@@ -4,5 +4,5 @@
   "passed": 36,
   "pythonEnvironment": "Siril Python environment with NumPy, PyQt6, Astropy",
   "colorToneReferenceTolerance": 2e-07,
-  "version": "0.4.0"
+  "version": "0.4.1"
 }
