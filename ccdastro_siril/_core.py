@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 import numpy as np
 
-VERSION = '0.4.2'
+VERSION = '0.5.0'
 
 def image_array(data):
     a = np.asarray(data)

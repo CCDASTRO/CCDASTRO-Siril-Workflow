@@ -1,10 +1,10 @@
-# v0.4.2 — CCDASTRO script menu and migration
+# v0.5.0 — Optional Lighthouse finishing handoff
 
-- Register a dedicated CCDASTRO menu folder while keeping the stable application install location.
-- Remove recognized older workflow search-path entries during setup so earlier extracted test copies do not create duplicate menus.
-- Preserve old extracted files, personal presets, images, unrelated script paths and settings backups.
-- Restart Siril after updating. Launch Scripts > CCDASTRO > CCDASTRO_Siril_Workflow.
+- Discover the separately installed Lighthouse for Siril script, with a custom-path Browse option.
+- Prepare Lighthouse handoff saves accepted pixels as a new FITS and opens that copy in Siril, then closes CCDASTRO. Select Lighthouse from Siril's Scripts menu to start editing.
+- This is an assisted handoff, not automatic launch or return. Nested automatic launches stalled in isolated Siril 1.4.4 checks and are not enabled.
+- Requires an unchanged saved FITS source; accept/discard candidates first. Existing destination files are refused. Source disk files and personal data remain preserved.
+- Save Lighthouse output separately, then reopen CCDASTRO to continue. No shared presets or bundled/imported Lighthouse code.
+- Credits: Yannick Dutertre (Cuiv), Siril port; Neven Krčmarek, original Lighthouse.
 
-## Verification
-
-The v0.4.2 installer and CCDASTRO menu placement were confirmed working by a user on October 20, 2026. Automated checks passed all 36 workflow tests and the isolated install, upgrade, legacy-path migration and uninstall tests.
+Verification for v0.5.0: 42 automated tests and isolated installer lifecycle checks passed. An isolated Siril 1.4.4 check detected the installed Lighthouse script, opened a 40×32 RGB handoff copy, and confirmed the source file bytes were unchanged. Lighthouse editing itself remains a separately launched user action.

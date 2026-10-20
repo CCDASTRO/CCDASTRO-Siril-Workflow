@@ -1,20 +1,20 @@
 # CCDASTRO Siril Workflow
 
-Version 0.4.2 — development release, October 20, 2026.
+Version 0.5.0 — development release, October 20, 2026.
 
 A standalone image-processing workflow for Siril, with Color & Tone controls, masks, curves and review of each processing pass. This project maintains its own source, presets, tests and versioning.
 
 ## Download, install and update
 
-Current release: **v0.4.2** (development release). [Release notes](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases/tag/v0.4.2) · [Windows installer](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases/download/v0.4.2/CCDASTRO-Siril-Workflow-0.4.2-Setup.exe).
+Current release: **v0.5.0** (development release). [Release notes](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases/tag/v0.5.0) · [Windows installer](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases/download/v0.5.0/CCDASTRO-Siril-Workflow-0.5.0-Setup.exe).
 
-Includes Color & Tone Studio and dedicated optional RC-Astro, GraXpert and SyQon controls when installed. Version 0.4.2 registers a CCDASTRO script menu and removes recognized older workflow paths from Siril settings; old extracted files remain preserved on disk.
+Includes Color & Tone Studio and dedicated optional RC-Astro, GraXpert and SyQon controls when installed. Version 0.5.0 registers a CCDASTRO script menu and removes recognized older workflow paths from Siril settings; old extracted files remain preserved on disk.
 
 [Download the Windows installer or ZIP](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases). Use the Windows installer for first installation and later upgrades. See [INSTALL.md](INSTALL.md) for exact steps, migration from earlier ZIP copies, and troubleshooting. The workflow's **Check for updates** button finds new releases and opens their download page. Each installer uses a stable per-user folder and preserves separately saved images/presets.
 
 After installation, restart Siril and choose **Scripts > CCDASTRO > CCDASTRO_Siril_Workflow**.
 
-The v0.4.2 installer and CCDASTRO menu placement were confirmed working by a user on October 20, 2026. Automated checks passed all 36 workflow tests and the isolated install, upgrade, legacy-path migration and uninstall tests.
+The v0.4.2 installer and CCDASTRO menu placement were confirmed working by a user on October 20, 2026. Version 0.5.0 adds the optional Lighthouse handoff; automated verification covers source preservation, refusal of unsaved sources/existing destinations, and separate-script discovery.
 
 ## What works
 
@@ -97,3 +97,16 @@ Siril and sirilpy: the Siril development team and contributors — https://siril
 This workflow brings host features together; underlying algorithms and external tools remain the work of their respective authors. Third-party packages and optional tools retain their own licenses. No endorsement or affiliation is implied. See THIRD_PARTY_NOTICES.md.
 
 Copyright 2026 CCDASTRO, Inc. All rights reserved. No new open-source license is granted by this development package.
+
+## Optional Lighthouse finishing
+
+1. Install **Lighthouse for Siril** through **Scripts > Get Scripts**. Use **Optional tools: locate / rescan** in CCDASTRO. Standard local repository locations are detected; Browse can select your trusted Lighthouse.py elsewhere.
+2. Work on a stretched image. Accept or discard the candidate first; save your preset and generated stars if needed. The active Siril source must be an unchanged, saved FITS file. Save unsaved host edits and reopen the workflow before handing off.
+3. Choose **Prepare Lighthouse handoff…** and select a new FITS filename. Existing files are refused. The accepted result is saved and opened as a copy in Siril; CCDASTRO closes after displaying the next step.
+4. Choose **Lighthouse** from Siril's Scripts menu. It runs independently and applies edits to the handoff image. Save its result under a new name. Reopen CCDASTRO to continue if desired.
+
+This is an assisted handoff with a manual Lighthouse launch. Automatic nested launching was not reliable in isolated Siril 1.4.4 checks and is not enabled. There is no automatic return/import, preset conversion or Lighthouse update handling. The original source file is preserved. Lighthouse's own edits and save choices are controlled by its separate interface.
+
+The option is enabled only when an installed script is detected. Lighthouse is not bundled, imported or modified. The installed Siril port v1.0.0 credits **Yannick Dutertre (Cuiv)** and original Lighthouse author **Neven Krčmarek**, and declares GPL-3.0-or-later. Update it through Siril. See [Siril script installation](https://siril.readthedocs.io/en/stable/Scripts.html) and [Lighthouse Suite](https://www.lighthousesuite.org/).
+
+Verification for v0.5.0: 42 automated tests and isolated installer lifecycle checks passed. An isolated Siril 1.4.4 check detected the installed Lighthouse script, opened a 40×32 RGB handoff copy, and confirmed the source file bytes were unchanged. Lighthouse editing itself remains a separately launched user action.

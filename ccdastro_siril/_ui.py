@@ -164,6 +164,7 @@ class WorkflowDialog(QDialog):
         self.save_stars=QPushButton('Save generated stars FITS');self.save_stars.setEnabled(False);self.save_stars.clicked.connect(self.export_generated_stars);generated.addWidget(self.save_stars)
         self.update_button=QPushButton('Check for updates');self.update_button.clicked.connect(self.check_updates);root.addWidget(self.update_button)
         setup=QPushButton('Optional tools: locate / rescan');setup.clicked.connect(self.setup_optional_tools);ll.addWidget(setup)
+        self.lighthouse_button=QPushButton('Prepare Lighthouse handoff…');self.lighthouse_button.clicked.connect(self.open_lighthouse);ll.addWidget(self.lighthouse_button)
         self.refresh_optional_tools()
         self.resize(1180,790);self.display()
     def refresh_optional_tools(self):
@@ -171,6 +172,10 @@ class WorkflowDialog(QDialog):
         from PyQt6.QtCore import QSettings
         while self.choice.count()>7:self.choice.removeItem(7)
         store=QSettings('CCDASTRO','SirilWorkflow')
+        from ._lighthouse import discover as find_lighthouse
+        self.lighthouse_path=find_lighthouse(store.value('optional/lighthouse',''))
+        self.lighthouse_button.setEnabled(bool(self.lighthouse_path))
+        self.lighthouse_button.setToolTip('Save and open a copy, then launch the separately installed Lighthouse from Siril’s Scripts menu.' if self.lighthouse_path else 'Install Lighthouse using Siril Get Scripts, then use Optional tools: locate / rescan.')
         if discover('graxpert',store.value('optional/graxpert','')):
             self.choice.addItem('GraXpert: background extraction',{'provider':'graxpert','operation':'background'})
             self.choice.addItem('GraXpert: denoising',{'provider':'graxpert','operation':'denoise'})
@@ -179,6 +184,25 @@ class WorkflowDialog(QDialog):
     def setup_optional_tools(self):
         from ._external_ui import SetupDialog
         if SetupDialog(self).exec():self.refresh_optional_tools()
+    def open_lighthouse(self):
+        from ._lighthouse import handoff
+        if self.pending is not None:
+            self.error('Accept or discard the current candidate before opening Lighthouse.');return
+        worker=getattr(self,'release_check',None)
+        if worker is not None and worker.isRunning():
+            self.error('Wait for the update check to finish before handing off.');return
+        message=('Lighthouse runs as a separate Siril script. Use a stretched image. '
+                 'Your accepted result will be saved as a new FITS file and opened in Siril. '
+                 'This workflow window will close; then choose Lighthouse from Siril’s Scripts menu. Save your preset and generated stars first if needed. '
+                 'Save Lighthouse output separately, then reopen CCDASTRO to continue.')
+        if QMessageBox.question(self,'Finish in Lighthouse',message)!=QMessageBox.StandardButton.Yes:return
+        path,_=QFileDialog.getSaveFileName(self,'Save accepted result for Lighthouse','','FITS (*.fits *.fit)')
+        if not path:return
+        try:
+            handoff(self.host,self.session.current,self.session.metadata,path,self.lighthouse_path)
+        except Exception as error:self.error(error);return
+        QMessageBox.information(self,'Lighthouse handoff ready','Your accepted copy is open in Siril. This workflow will now close. Choose Lighthouse from Siril’s Scripts menu. After editing, save its result under a new name.\n\nInstalled script: '+self.lighthouse_path)
+        self.accept()
     def external_settings(self,parameters):
         from ._external_ui import SettingsDialog
         try:

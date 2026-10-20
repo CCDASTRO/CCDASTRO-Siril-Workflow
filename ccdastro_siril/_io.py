@@ -24,7 +24,7 @@ def save_fits(path,data,metadata):
     elif isinstance(raw,str) and raw: header=fits.Header.fromstring(raw,sep='\n' if '\n' in raw else '')
     elif isinstance(raw,dict): header=fits.Header(raw)
     else: header=fits.Header()
-    header.add_history('CCDASTRO independent workflow 0.4.2; original source preserved.')
+    header.add_history('CCDASTRO independent workflow 0.5.0; original source preserved.')
     payload=np.moveaxis(a,-1,0) if a.ndim==3 else a
     # Astropy updates FITS structural cards to match the new image shape.
     fits.PrimaryHDU(payload,header).writeto(p,overwrite=False)

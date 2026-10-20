@@ -8,19 +8,23 @@ from ._rcastro_ui import ProcessingDialog
 
 class SetupDialog(QDialog):
     def __init__(self,parent=None):
-        super().__init__(parent);self.setWindowTitle('Optional GraXpert and SyQon installations');root=QVBoxLayout(self);self.paths={};store=QSettings('CCDASTRO','SirilWorkflow')
-        note=QLabel('Select installed executables or leave blank for automatic detection. SyQon sign-in, model installation and product access are managed in SyQon Studio.');note.setWordWrap(True);root.addWidget(note)
-        for provider,label in [('graxpert','GraXpert'),('syqon','SyQon Studio CLI')]:
-            root.addWidget(QLabel(label));row=QHBoxLayout();path=QLineEdit(discover(provider,store.value('optional/'+provider,'')));row.addWidget(path,1);self.paths[provider]=path
+        super().__init__(parent);self.setWindowTitle('Optional tool installations');root=QVBoxLayout(self);self.paths={};store=QSettings('CCDASTRO','SirilWorkflow')
+        note=QLabel('Select installed executables or the Lighthouse script, or leave blank for automatic detection. SyQon sign-in, model installation and product access are managed in SyQon Studio.');note.setWordWrap(True);root.addWidget(note)
+        for provider,label in [('graxpert','GraXpert'),('syqon','SyQon Studio CLI'),('lighthouse','Lighthouse for Siril script')]:
+            from ._lighthouse import discover as find_lighthouse
+            found=find_lighthouse(store.value('optional/lighthouse','')) if provider=='lighthouse' else discover(provider,store.value('optional/'+provider,''))
+            root.addWidget(QLabel(label));row=QHBoxLayout();path=QLineEdit(found);row.addWidget(path,1);self.paths[provider]=path
             button=QPushButton('Browse…');button.clicked.connect(lambda _,key=provider:self.browse(key));row.addWidget(button);root.addLayout(row)
         links=QLabel('<a href="https://www.graxpert.com/">GraXpert</a> · <a href="https://syqon.eu/develop">SyQon Studio and CLI</a>');links.setOpenExternalLinks(True);root.addWidget(links)
         buttons=QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel);buttons.accepted.connect(self.commit);buttons.rejected.connect(self.reject);root.addWidget(buttons);self.resize(650,250)
     def browse(self,key):
-        path,_=QFileDialog.getOpenFileName(self,'Locate installed executable',self.paths[key].text(),'Executable (*.exe);;All files (*)')
+        path,_=QFileDialog.getOpenFileName(self,'Locate installed tool',self.paths[key].text(),'Python script (*.py);;All files (*)' if key=='lighthouse' else 'Executable (*.exe);;All files (*)')
         if path:self.paths[key].setText(path)
     def commit(self):
         for provider,edit in self.paths.items():
             if edit.text() and not Path(edit.text()).is_file():QMessageBox.information(self,'Optional tool missing','The selected '+provider+' executable was not found.');return
+        if self.paths['lighthouse'].text() and Path(self.paths['lighthouse'].text()).suffix.lower()!='.py':
+            QMessageBox.information(self,'Lighthouse script','Select the installed Lighthouse.py script.');return
         store=QSettings('CCDASTRO','SirilWorkflow')
         for provider,edit in self.paths.items():store.setValue('optional/'+provider,edit.text())
         self.accept()

@@ -1,10 +1,10 @@
 # Install and update CCDASTRO Siril Workflow
 
-Version 0.4.2 — development release for Windows. Tested with Siril 1.4.4.
+Version 0.5.0 — development release for Windows. Tested with Siril 1.4.4.
 
 ## Recommended: Windows installer
 
-1. Download `CCDASTRO-Siril-Workflow-0.4.2-Setup.exe` from the [GitHub releases page](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases).
+1. Download `CCDASTRO-Siril-Workflow-0.5.0-Setup.exe` from the [GitHub releases page](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases).
 2. Close Siril and its workflow windows. The installer checks this and asks you to close the host if it is running.
 3. Run the installer under your normal Windows account. It installs for that account without administrator access.
 4. Complete the wizard. The Start menu gets installation-guide, downloads/updates and uninstall shortcuts.
@@ -77,4 +77,17 @@ Native checks passed on a synthetic RGB image for GraXpert background extraction
 Run the tests, update the version in the runtime, installer and packaging script together, and run `scripts/build.ps1`. Review the resulting installer, ZIP and SHA256SUMS.txt. Push a `vX.Y.Z` tag; the repository's GitHub Actions release job builds, tests and publishes that development release. Check its completed job and release assets. Public downloads are at the Releases link above.
 
 
-Installer menu layout (v0.4.2): setup registers the CCDASTRO subfolder inside the stable installation directory. In Siril, select Scripts > CCDASTRO > CCDASTRO_Siril_Workflow. For manual registration, add %LOCALAPPDATA%\CCDASTRO\SirilWorkflow\CCDASTRO. Setup removes older registered directories containing both this workflow launcher and its companion package, while retaining unrelated script paths and making a settings backup. Older extracted folders remain on disk to preserve personal files; after checking your saved files, you can archive or remove those folders yourself. Restart Siril after setup. Portable ZIP users continue to register their extracted launcher folder.
+Installer menu layout (v0.5.0): setup registers the CCDASTRO subfolder inside the stable installation directory. In Siril, select Scripts > CCDASTRO > CCDASTRO_Siril_Workflow. For manual registration, add %LOCALAPPDATA%\CCDASTRO\SirilWorkflow\CCDASTRO. Setup removes older registered directories containing both this workflow launcher and its companion package, while retaining unrelated script paths and making a settings backup. Older extracted folders remain on disk to preserve personal files; after checking your saved files, you can archive or remove those folders yourself. Restart Siril after setup. Portable ZIP users continue to register their extracted launcher folder.
+
+## Optional Lighthouse finishing
+
+1. Install **Lighthouse for Siril** through **Scripts > Get Scripts**. Use **Optional tools: locate / rescan** in CCDASTRO. Standard local repository locations are detected; Browse can select your trusted Lighthouse.py elsewhere.
+2. Work on a stretched image. Accept or discard the candidate first; save your preset and generated stars if needed. The active Siril source must be an unchanged, saved FITS file. Save unsaved host edits and reopen the workflow before handing off.
+3. Choose **Prepare Lighthouse handoff…** and select a new FITS filename. Existing files are refused. The accepted result is saved and opened as a copy in Siril; CCDASTRO closes after displaying the next step.
+4. Choose **Lighthouse** from Siril's Scripts menu. It runs independently and applies edits to the handoff image. Save its result under a new name. Reopen CCDASTRO to continue if desired.
+
+This is an assisted handoff with a manual Lighthouse launch. Automatic nested launching was not reliable in isolated Siril 1.4.4 checks and is not enabled. There is no automatic return/import, preset conversion or Lighthouse update handling. The original source file is preserved. Lighthouse's own edits and save choices are controlled by its separate interface.
+
+The option is enabled only when an installed script is detected. Lighthouse is not bundled, imported or modified. The installed Siril port v1.0.0 credits **Yannick Dutertre (Cuiv)** and original Lighthouse author **Neven Krčmarek**, and declares GPL-3.0-or-later. Update it through Siril. See [Siril script installation](https://siril.readthedocs.io/en/stable/Scripts.html) and [Lighthouse Suite](https://www.lighthousesuite.org/).
+
+Verification for v0.5.0: 42 automated tests and isolated installer lifecycle checks passed. An isolated Siril 1.4.4 check detected the installed Lighthouse script, opened a 40×32 RGB handoff copy, and confirmed the source file bytes were unchanged. Lighthouse editing itself remains a separately launched user action.
