@@ -44,8 +44,8 @@ class ProcessingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             path=Path(folder)/'result.fit';save_fits(path,self.data,{});out,meta=load_fits(path);np.testing.assert_array_equal(out,self.data)
             with self.assertRaises(FileExistsError):save_fits(path,self.data,{})
-    def test_js_reference_parity(self):
-        path=Path(__file__).with_name('pi-color-tone-reference.json')
+    def test_color_tone_reference(self):
+        path=Path(__file__).with_name('color-tone-reference.json')
         for case in json.loads(path.read_text()):
             p=core.tone_defaults();p.update(case['settings']);rgb=np.asarray(case['input'],dtype=np.float32).reshape(2,2,3)
             result=core.color_tone(rgb,p);np.testing.assert_allclose(result,np.asarray(case['expected']).reshape(2,2,3),atol=2e-7,rtol=0)

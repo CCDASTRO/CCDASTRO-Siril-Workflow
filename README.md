@@ -2,7 +2,7 @@
 
 Version 0.1.0 — local development build, October 20, 2026.
 
-An independent adaptation of the CCDASTRO PixInsight workflow for Siril. This project has its own source, presets, tests and versioning. It does not load PixInsight scripts, require PixInsight, or alter the PixInsight workflow or updater.
+A standalone image-processing workflow for Siril, with Color & Tone controls, masks, curves and review of each processing pass. This project maintains its own source, presets, tests and versioning.
 
 ## What works
 
@@ -17,17 +17,15 @@ An independent adaptation of the CCDASTRO PixInsight workflow for Siril. This pr
 
 ## Scope of this build
 
-This is a usable first port, not feature parity with the PI release. There is no unattended run-all, automatic LRGB/narrowband orchestration, reference-color matching, automatic registration or starless/stars pairing, or full-resolution pan/zoom inspector yet. Color & Tone settings are recorded in the output report; the dialog starts with neutral controls on each new pass. The simple background-plane fit is not AutoDBE or an AI background model. Use conservative amounts and inspect nebulosity.
+This is an initial development build. There is no unattended run-all, automatic LRGB/narrowband orchestration, reference-color matching, automatic registration or starless/stars pairing, or full-resolution pan/zoom inspector yet. Color & Tone settings are recorded in the output report; the dialog starts with neutral controls on each new pass. The simple background-plane fit is not AutoDBE or an AI background model. Use conservative amounts and inspect nebulosity.
 
 No third-party AI model, plugin or commercial license is bundled. Native AI, color-calibration and other optional commands depend on the host's installed tools, paths, models, licenses and preset schema. Only the native stretch has been exercised in the installed application; the other allowlisted native commands still need individual validation. An unsuccessful native command may leave a working image open for inspection.
 
 FITS is the portable interchange format. No XISF parser is implemented. The original image/file is preserved. Existing output files are refused. FITS headers are preserved where supplied by the host; arbitrary host application state, layers and display settings are not serialized to FITS. Save through the host if its native project metadata is needed.
 
-## Install and launch
+## Installation
 
-Requires Siril 1.4.4+ with Python scripting enabled and sirilpy 1.0.25+. This build was tested with Siril 1.4.4. Keep `CCDASTRO_Siril_Workflow.py` and the entire `ccdastro_siril` folder together in a dedicated script directory; add that directory to Siril's script search paths and refresh its scripts menu. Launch the Python script from Siril, not a general Python interpreter. Install the packages in `requirements.txt` into Siril's Python environment if missing. Do not place custom files inside Siril's managed downloaded script repository.
-
-On this Windows machine the separate project folder is `C:\Users\chuck\source\repos\CCDASTRO-Siril-Workflow`. The existing PI folder is not involved.
+Start with [INSTALL.md](INSTALL.md). It includes Windows folder layouts, menu steps, first-launch checks, updates and troubleshooting. Extract the ZIP before installation; keep the launcher and its complete companion package folder together.
 
 ## First test
 
@@ -56,7 +54,7 @@ Automated checks cover source-copy protection, mask boundaries, curve monotonici
 
 ## Credits and ownership
 
-CCDASTRO workflow/UI and the Color & Tone implementation: Chuck Faranda / CCDASTRO, Inc. The color controls were inspired by Lighthouse by Neven Krcmarek; the Siril Lighthouse header also credits Yannick Dutertre (Cuiv) for its port. No Lighthouse source is bundled. Color & Tone math was adapted from CCDASTRO's own PI implementation and checked against saved reference values.
+CCDASTRO workflow/UI and the Color & Tone implementation: Chuck Faranda / CCDASTRO, Inc. The color controls were inspired by Lighthouse by Neven Krcmarek; the Siril Lighthouse header also credits Yannick Dutertre (Cuiv) for its port. No Lighthouse source is bundled. Color & Tone processing is implemented by CCDASTRO and checked against saved reference values.
 
 Siril and sirilpy: the Siril development team and contributors — https://siril.org/ and https://siril.readthedocs.io/en/stable/Python-API.html . Optional StarNet support belongs to Mikita Misiura and the StarNet project; it is not included. Optional native denoising/deconvolution/calibration remains Siril's implementation.
 

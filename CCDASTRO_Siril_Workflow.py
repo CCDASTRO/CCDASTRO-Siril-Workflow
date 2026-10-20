@@ -1,7 +1,7 @@
 """CCDASTRO Siril Workflow 0.1.0.
 Author: Chuck Faranda / CCDASTRO, Inc. https://ccdastro.com/
 Copyright (c) 2026 CCDASTRO, Inc. All rights reserved.
-Launch from Siril's Python scripts menu. No PixInsight installation is used.
+Launch from Siril's Python scripts menu.
 """
 from pathlib import Path
 import sys
@@ -10,6 +10,8 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 def main():
     import sirilpy
     sirilpy.check_module_version('>=1.0.25')
+    if not sirilpy.ensure_installed('numpy','PyQt6','astropy',version_constraints=['>=1.24','>=6.5','>=5.3']):
+        raise RuntimeError('Required Python packages could not be installed. See the Siril console and INSTALL.md.')
     from PyQt6.QtWidgets import QApplication,QMessageBox
     from ccdastro_siril._host import Host
     from ccdastro_siril._ui import WorkflowDialog

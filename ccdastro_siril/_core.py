@@ -1,4 +1,4 @@
-"""CCDASTRO portable processing. Independent copy; no PixInsight imports.
+"""CCDASTRO image processing for Siril.
 
 Copyright (c) 2026 Chuck Faranda / CCDASTRO, Inc. All rights reserved.
 """
