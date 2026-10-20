@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "host": "Siril",
+  "steps": [
+    {
+      "kind": "stretch",
+      "parameters": {
+        "target": 0.23
+      },
+      "enabled": true,
+      "review": true
+    }
+  ]
+}

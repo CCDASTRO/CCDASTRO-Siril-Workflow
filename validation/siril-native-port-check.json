@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "shape": [
+    64,
+    80,
+    3
+  ],
+  "savedFITS": "C:\\Users\\chuck\\Documents\\Codex\\2026-10-18\\s\\work\\host-port-tests\\siril-output.fit",
+  "nativeCommand": "autostretch",
+  "nativeMedian": 0.24999631941318512,
+  "sourceUnchanged": true
+}

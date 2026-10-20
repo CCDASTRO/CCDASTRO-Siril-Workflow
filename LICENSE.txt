@@ -1,0 +1,4 @@
+Copyright (c) 2026 CCDASTRO, Inc. All rights reserved.
+
+This development snapshot does not grant a new redistribution or open-source license.
+Third-party libraries and optional host tools retain their respective licenses.

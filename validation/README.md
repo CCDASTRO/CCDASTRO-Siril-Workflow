@@ -1,0 +1,1 @@
+Native smoke test on 2026-10-20 using Siril 1.4.4. Synthetic 64x80 RGB float32 input only. Confirmed native stretch, unchanged source pixels, result creation, and UI construction. Portable unit tests additionally compare Color & Tone output with saved CCDASTRO reference values. No third-party AI commands were executed.
