@@ -1,8 +1,12 @@
 # CCDASTRO Siril Workflow
 
-Version 0.1.0 â€” local development build, October 20, 2026.
+Version 0.2.0 — development release, October 20, 2026.
 
 A standalone image-processing workflow for Siril, with Color & Tone controls, masks, curves and review of each processing pass. This project maintains its own source, presets, tests and versioning.
+
+## Download, install and update
+
+[Download the Windows installer or ZIP](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases). Use the Windows installer for first installation and later upgrades. See [INSTALL.md](INSTALL.md) for exact steps, migration from earlier ZIP copies, and troubleshooting. The workflow's **Check for updates** button finds new releases and opens their download page. Each installer uses a stable per-user folder and preserves separately saved images/presets.
 
 ## What works
 
@@ -21,7 +25,7 @@ This is an initial development build. There is no unattended run-all, automatic 
 
 No third-party AI model, plugin or commercial license is bundled. Native AI, color-calibration and other optional commands depend on the host's installed tools, paths, models, licenses and preset schema. Only the native stretch has been exercised in the installed application; the other allowlisted native commands still need individual validation. An unsuccessful native command may leave a working image open for inspection.
 
-FITS is the portable interchange format. No XISF parser is implemented. The original image/file is preserved. Existing output files are refused. FITS headers are preserved where supplied by the host; arbitrary host application state, layers and display settings are not serialized to FITS. Save through the host if its native project metadata is needed.
+FITS is the portable interchange format. The original image/file is preserved. Existing output files are refused. FITS headers are preserved where supplied by the host; arbitrary host application state, layers and display settings are not serialized to FITS. Save through the host if its native project metadata is needed.
 
 ## Installation
 

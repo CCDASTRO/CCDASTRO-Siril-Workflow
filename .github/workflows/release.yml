@@ -1,0 +1,44 @@
+name: Build and release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test dependencies
+        run: python -m pip install numpy PyQt6 astropy
+      - name: Tests
+        run: python -m unittest discover -s tests -v
+      - name: Ensure Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed' }
+          }
+      - name: Build packages
+        run: ./scripts/build.ps1
+      - name: Keep build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-packages
+          path: dist/*
+      - name: Publish development release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $tag=$env:GITHUB_REF_NAME
+          $version=python -c "from ccdastro_siril._core import VERSION; print(VERSION)"
+          if ($tag -ne "v$version") { throw 'Tag does not match application version' }
+          gh release create $tag --verify-tag --prerelease --title "CCDASTRO Siril Workflow $version (development)" --notes-file RELEASE-NOTES.md dist/*
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

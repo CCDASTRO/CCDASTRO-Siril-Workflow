@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-20",
+  "version": "0.2.0",
+  "isolatedInstall": true,
+  "repeatUpgrade": true,
+  "uninstall": true,
+  "personalPresetPreserved": true,
+  "sirilConfigBackupAndRegistrationTested": true,
+  "testBuild": "Same installer with host-running checks disabled and all test registration/uninstaller paths redirected inside the workspace; no user host settings changed."
+}

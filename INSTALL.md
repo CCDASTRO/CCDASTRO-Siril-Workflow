@@ -1,81 +1,53 @@
-# Install CCDASTRO Siril Workflow (Windows)
+# Install and update CCDASTRO Siril Workflow
 
-Development version 0.1.0. Tested with Siril 1.4.4. Allow about five minutes, plus any first-run package downloads.
+Version 0.2.0 â€” development release for Windows. Tested with Siril 1.4.4.
 
-## 1. Extract the download
+## Recommended: Windows installer
 
-1. Download `CCDASTRO-Siril-Workflow-0.1.0-dev.zip`.
-2. In File Explorer, right-click the ZIP and choose **Extract All**. Do not run the script inside the ZIP.
-3. Move the extracted `CCDASTRO-Siril-Workflow` folder to a permanent, writable location. Recommended example:
+1. Download `CCDASTRO-Siril-Workflow-0.2.0-Setup.exe` from the [GitHub releases page](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases).
+2. Close Siril and its workflow windows. The installer checks this and asks you to close the host if it is running.
+3. Run the installer under your normal Windows account. It installs for that account without administrator access.
+4. Complete the wizard. The Start menu gets installation-guide, downloads/updates and uninstall shortcuts.
 
-   `C:\Users\chuck\Documents\Astronomy Scripts\CCDASTRO-Siril-Workflow`
+The default folder is `%LOCALAPPDATA%\CCDASTRO\SirilWorkflow`.
 
-4. Open that folder and confirm this layout:
+If Siril has an existing `config.1.4.ini`, setup backs it up and adds the workflow folder to its script search path while preserving the existing entries. The backup is beside the settings file with a `.ccdastro-...bak` suffix. Start Siril, open an image, wait until loading finishes, then launch **Scripts > Python Scripts > CCDASTRO_Siril_Workflow**.
 
-```text
-CCDASTRO-Siril-Workflow\
-    CCDASTRO_Siril_Workflow.py
-    ccdastro_siril\
-        __init__.py
-        _core.py
-        _host.py
-        _io.py
-        _ui.py
-        _demo.py
-    INSTALL.md
-    README.md
-    presets\
-```
+If Siril has not been run yet, uses a custom settings file, or uses another configuration filename, register the folder once: **Ctrl+P > Scripts > Script Storage Directories**, add the folder above, rescan and Apply. Keep your other script directories. Restart Siril if the entry is missing.
 
-The launcher and `ccdastro_siril` folder must be beside each other. Keep the entire package folder. The download also contains development tests and notices; they can remain in the extracted folder.
+At first launch the script checks/install its NumPy, PyQt6 and Astropy dependencies in Siril's own Python environment. Allow internet access for package downloads; console output reports progress. A compatible Siril installation must provide sirilpy 1.0.25 or later.
 
-## 2. Tell Siril where to find the script
+## Updating later
 
-1. Open **Siril 1.4.4 or later** with Python scripting support.
-2. Press **Ctrl+P** to open Preferences, then select **Scripts**.
-3. Under **Script Storage Directories**, add the full path to the folder containing `CCDASTRO_Siril_Workflow.py` (the example path above). Keep your existing script directories.
-4. Click the rescan/update button beneath the directory list, then **Apply**.
-5. Look in **Scripts > Python Scripts** for `CCDASTRO_Siril_Workflow` (the filename may be displayed without `.py`). Restart Siril if the menu has not refreshed.
+Click **Check for updates** in the workflow. It checks this project's public GitHub releases only when requested, including development releases. If a higher version is available, it offers to open that release page. Download its Windows installer, close the host, and run the installer. Setup reuses the same installation directory and replaces the application files. Updates do not run automatically during image processing.
 
-For an alternative launch, enter this in **Siril's own command field**, adjusting the path if needed:
+You can also use **Start > CCDASTRO Siril Workflow > Downloads and updates**. The installer is the same tool for first installation and upgrades; no manual copying is needed. Keep your images and personal presets outside the installation directory. A newer installer is published for every versioned release. Development releases are explicitly labeled on GitHub.
 
-```text
-pyscript "C:/Users/chuck/Documents/Astronomy Scripts/CCDASTRO-Siril-Workflow/CCDASTRO_Siril_Workflow.py"
-```
+## Moving from the earlier ZIP build
 
-Siril's preferences and script-directory behavior are described in the [official Scripts preferences documentation](https://siril.readthedocs.io/en/stable/preferences/preferences_gui.html#scripts).
+Close the old workflow first. Remove the old extracted workflow directory from Siril's Script Storage Directories after the installer has registered its new folder. Preserve any personal presets/images from the old folder. This avoids two menu entries. Do not remove other script directories.
 
-## 3. First launch and dependencies
+## Portable ZIP option
 
-1. Open a small RGB or monochrome image in Siril and wait until it has finished loading before launching the workflow.
-2. Launch the workflow from the Scripts menu or command above. Do not double-click the `.py` file in File Explorer.
-3. On first launch, the script uses Siril's Python environment to check NumPy, PyQt6 and Astropy and install missing or outdated packages. Internet access is needed for downloads. Read progress and errors in Siril's console. No separate Python installation or manual pip command is normally required.
-4. If a package update requests a restart, restart Siril and launch the script again. The workflow requires sirilpy 1.0.25 or later, supplied by a compatible Siril installation.
-5. Confirm that the **CCDASTRO Siril Workflow 0.1.0** window opens with your image.
+Extract the ZIP into a permanent writable folder. Keep the launcher file and its companion package folder together. Add the folder containing `CCDASTRO_Siril_Workflow.py` to Siril's Script Storage Directories, rescan and Apply. Launch it from Siril after opening an image.
 
-The dependency mechanism follows Siril's [Python API guidance](https://siril.readthedocs.io/en/stable/Python-API.html#siril-script-coding-guidance).
+## First processing check
 
-## 4. Confirm processing and export
+1. Open a small RGB or monochrome image and wait for loading to finish.
+2. For linear data, choose Linked automatic stretch, Add step, then Preview selected step.
+3. Compare Current/Candidate, then Accept candidate if satisfied.
+4. Open Color & Tone Studio, inspect a mask and adjust a slider/curve. Review the full-resolution result before accepting it.
+5. Save result + report under a new FITS filename. Existing files are refused.
 
-1. For linear data, choose **Linked automatic stretch**, click **Add step**, then **Preview selected step**.
-2. Compare **Current** and **Candidate**; click **Accept candidate** if satisfied.
-3. Open **Color & Tone Studio**, adjust a slider and inspect the mask. Choose **Review full-resolution result**, then accept or discard the candidate in the main workflow window.
-4. Click **Save result + report** and choose a new `.fit` filename. Confirm that both the FITS result and its `.json` report were saved.
-5. Close the workflow. Open the saved result in Siril when you want to continue processing it.
+## Troubleshooting and removal
 
-Native Siril passes require a saved FITS source with no unsaved pixel edits. Other passes work on the workflow's image copy.
+- Missing menu entry: restart the host and check the registered directory/layout above.
+- Missing companion module: reinstall; the launcher alone is insufficient.
+- No usable image: finish opening a single image before launching the workflow.
+- Update check unavailable: try again later or open the GitHub releases page directly. Normal processing still works offline once dependencies are installed.
+- The installer currently has no Windows Authenticode signature. Use the release page and SHA256SUMS.txt to identify the distributed files; checksums are not a publisher signature.
+- Uninstall using Windows Installed apps or the workflow's Start menu shortcut. Close the host first. Only installed workflow files are removed. Siril setup removes its own search-path entry when uninstalling and keeps settings backups. Shared host packages, your images and separately saved presets remain.
 
-## Troubleshooting
+## Maintainer release process
 
-- **Script missing:** confirm the registered directory contains the launcher directly, not another nested extraction folder. Rescan or restart Siril.
-- **No module named ccdastro_siril:** copy/extract the complete companion folder beside the launcher.
-- **Missing package or download failure:** check the console, restore internet access, and relaunch. Do not install packages into an unrelated system Python.
-- **sirilpy too old:** update Siril to a compatible version and relaunch.
-- **Open an image / wait for loading:** finish opening a single image before starting the workflow. If you launched too early, close the message, wait for Siril to finish loading, and launch again. A previous “no FITS image” error means the transfer API had no usable image at that moment; it does not by itself mean the source format is unsupported.
-- **Output already exists:** use a different filename; this build refuses overwrites.
-
-## Updating or removing
-
-For an update, close the workflow, extract the new package into a new version folder, and point Siril's script directory to that folder. Keep personal presets and output images separately.
-
-To remove it, close the workflow, remove only its directory from Siril's Script Storage Directories, rescan, and delete the extracted workflow folder if no longer needed. Leave shared Python packages installed because other scripts may use them.
+Run the tests, update the version in the runtime, installer and packaging script together, and run `scripts/build.ps1`. Review the resulting installer, ZIP and SHA256SUMS.txt. Push a `vX.Y.Z` tag; the repository's GitHub Actions release job builds, tests and publishes that development release. Check its completed job and release assets. Public downloads are at the Releases link above.

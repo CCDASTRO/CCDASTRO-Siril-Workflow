@@ -159,7 +159,16 @@ class WorkflowDialog(QDialog):
         if host.title!='Siril':
             self.publish_button=QPushButton('Open result as new host document');self.publish_button.clicked.connect(self.publish);root.addWidget(self.publish_button)
         stars=QPushButton('Review recombination with a registered stars FITS image');stars.clicked.connect(self.recombine_stars);root.addWidget(stars)
-        self.resize(1180,720);self.display()
+        self.update_button=QPushButton('Check for updates');self.update_button.clicked.connect(self.check_updates);root.addWidget(self.update_button)
+        self.resize(1180,750);self.display()
+    def check_updates(self):
+        from ._updates import check_for_updates
+        check_for_updates(self)
+    def done(self,code):
+        worker=getattr(self,'release_check',None)
+        if worker is not None and worker.isRunning():
+            self.status.setText('Please wait for the update check to finish before closing.');return
+        super().done(code)
     def error(self,e):QMessageBox.warning(self,'CCDASTRO workflow',str(e))
     def refresh(self):
         self.list.clear()
