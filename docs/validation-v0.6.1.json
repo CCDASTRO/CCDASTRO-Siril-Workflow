@@ -1,0 +1,25 @@
+{
+  "version": "0.6.1",
+  "date": "2026-10-22",
+  "testsPassed": 63,
+  "startup": "Enabled by default, persisted per workflow, at most once every 24 hours; cached notices between checks.",
+  "manual": "Still available with startup checks disabled; bypasses daily throttle.",
+  "notification": "Nonmodal download button; no automatic download or installation.",
+  "offline": "Startup errors quiet.",
+  "lifecycle": "Daemon network worker delivers GUI-thread signals; close never waits; late results ignored.",
+  "liveCheck": {
+    "liveGitHubCheckPassed": true,
+    "noticeVisible": true,
+    "version": "0.6.1",
+    "noStartupPopup": true,
+    "viewport": [
+      1180,
+      790
+    ]
+  },
+  "installerLifecycle": "Isolated install, repeated upgrade, uninstall and personal-file preservation passed.",
+  "localArtifactSHA256": {
+    "CCDASTRO-Siril-Workflow-0.6.1-Setup.exe": "506121c34fbaa48b5364a98e42c720baa57f2a1d31e5915ebeb7a83b7c79d383",
+    "CCDASTRO-Siril-Workflow-0.6.1.zip": "75010d85f0b06e7528cf7fd2b583a693a1eb0c190c3f4d72896ac7d370b056f9"
+  }
+}

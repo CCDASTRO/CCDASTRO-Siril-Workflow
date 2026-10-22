@@ -163,7 +163,9 @@ class WorkflowDialog(QDialog):
         self.use_stars=QPushButton('Recombine with generated stars');self.use_stars.setEnabled(False);self.use_stars.clicked.connect(self.recombine_generated);generated.addWidget(self.use_stars)
         self.save_stars=QPushButton('Save generated stars FITS');self.save_stars.setEnabled(False);self.save_stars.clicked.connect(self.export_generated_stars);generated.addWidget(self.save_stars)
         channels=QPushButton('Independent channel stretch (linear RGB / mono masters)…');channels.clicked.connect(lambda:self.channel_stretch());root.addWidget(channels)
-        self.update_button=QPushButton('Check for updates');self.update_button.clicked.connect(self.check_updates);root.addWidget(self.update_button)
+        self.update_button=QPushButton('Check for updates');self.update_button.clicked.connect(self.check_updates)
+        from ._updates import install_update_controls
+        install_update_controls(self,root)
         setup=QPushButton('Optional tools: locate / rescan');setup.clicked.connect(self.setup_optional_tools);ll.addWidget(setup)
         self.lighthouse_button=QPushButton('Prepare Lighthouse handoff…');self.lighthouse_button.clicked.connect(self.open_lighthouse);ll.addWidget(self.lighthouse_button)
         self.refresh_optional_tools()
@@ -189,9 +191,6 @@ class WorkflowDialog(QDialog):
         from ._lighthouse import handoff
         if self.pending is not None:
             self.error('Accept or discard the current candidate before opening Lighthouse.');return
-        worker=getattr(self,'release_check',None)
-        if worker is not None and worker.isRunning():
-            self.error('Wait for the update check to finish before handing off.');return
         message=('Lighthouse runs as a separate Siril script. Use a stretched image. '
                  'Your accepted result will be saved as a new FITS file and opened in Siril. '
                  'This workflow window will close; then choose Lighthouse from Siril’s Scripts menu. Save your preset and generated stars first if needed. '
@@ -214,9 +213,8 @@ class WorkflowDialog(QDialog):
         from ._updates import check_for_updates
         check_for_updates(self)
     def done(self,code):
-        worker=getattr(self,'release_check',None)
-        if worker is not None and worker.isRunning():
-            self.status.setText('Please wait for the update check to finish before closing.');return
+        controller=getattr(self,'update_controller',None)
+        if controller is not None:controller.shutdown()
         super().done(code)
     def error(self,e):QMessageBox.warning(self,'CCDASTRO workflow',str(e))
     def refresh(self):

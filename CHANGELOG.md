@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.1
+- Add optional daily startup update notices with saved opt-out, a download button, quiet offline behavior and nonblocking closure.
+
 ## 0.4.1
 
 - Make Siril settings-backup filenames unique during rapid install/uninstall operations.
