@@ -1,10 +1,10 @@
 # Install and update CCDASTRO Siril Workflow
 
-Version 0.5.0 — development release for Windows. Tested with Siril 1.4.4.
+Version 0.6.0 — development release for Windows. Tested with Siril 1.4.4.
 
 ## Recommended: Windows installer
 
-1. Download `CCDASTRO-Siril-Workflow-0.5.0-Setup.exe` from the [GitHub releases page](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases).
+1. Download `CCDASTRO-Siril-Workflow-0.6.0-Setup.exe` from the [GitHub releases page](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases).
 2. Close Siril and its workflow windows. The installer checks this and asks you to close the host if it is running.
 3. Run the installer under your normal Windows account. It installs for that account without administrator access.
 4. Complete the wizard. The Start menu gets installation-guide, downloads/updates and uninstall shortcuts.
@@ -77,7 +77,7 @@ Native checks passed on a synthetic RGB image for GraXpert background extraction
 Run the tests, update the version in the runtime, installer and packaging script together, and run `scripts/build.ps1`. Review the resulting installer, ZIP and SHA256SUMS.txt. Push a `vX.Y.Z` tag; the repository's GitHub Actions release job builds, tests and publishes that development release. Check its completed job and release assets. Public downloads are at the Releases link above.
 
 
-Installer menu layout (v0.5.0): setup registers the CCDASTRO subfolder inside the stable installation directory. In Siril, select Scripts > CCDASTRO > CCDASTRO_Siril_Workflow. For manual registration, add %LOCALAPPDATA%\CCDASTRO\SirilWorkflow\CCDASTRO. Setup removes older registered directories containing both this workflow launcher and its companion package, while retaining unrelated script paths and making a settings backup. Older extracted folders remain on disk to preserve personal files; after checking your saved files, you can archive or remove those folders yourself. Restart Siril after setup. Portable ZIP users continue to register their extracted launcher folder.
+Installer menu layout (v0.6.0): setup registers the CCDASTRO subfolder inside the stable installation directory. In Siril, select Scripts > CCDASTRO > CCDASTRO_Siril_Workflow. For manual registration, add %LOCALAPPDATA%\CCDASTRO\SirilWorkflow\CCDASTRO. Setup removes older registered directories containing both this workflow launcher and its companion package, while retaining unrelated script paths and making a settings backup. Older extracted folders remain on disk to preserve personal files; after checking your saved files, you can archive or remove those folders yourself. Restart Siril after setup. Portable ZIP users continue to register their extracted launcher folder.
 
 ## Optional Lighthouse finishing
 
@@ -90,4 +90,6 @@ This is an assisted handoff with a manual Lighthouse launch. Automatic nested la
 
 The option is enabled only when an installed script is detected. Lighthouse is not bundled, imported or modified. The installed Siril port v1.0.0 credits **Yannick Dutertre (Cuiv)** and original Lighthouse author **Neven Krčmarek**, and declares GPL-3.0-or-later. Update it through Siril. See [Siril script installation](https://siril.readthedocs.io/en/stable/Scripts.html) and [Lighthouse Suite](https://www.lighthousesuite.org/).
 
-Verification for v0.5.0: 42 automated tests and isolated installer lifecycle checks passed. An isolated Siril 1.4.4 check detected the installed Lighthouse script, opened a 40×32 RGB handoff copy, and confirmed the source file bytes were unchanged. Lighthouse editing itself remains a separately launched user action.
+Verification for v0.6.0: 42 automated tests and isolated installer lifecycle checks passed. An isolated Siril 1.4.4 check detected the installed Lighthouse script, opened a 40×32 RGB handoff copy, and confirmed the source file bytes were unchanged. Lighthouse editing itself remains a separately launched user action.
+
+After installation, use the Independent channel stretch button on linear data before other nonlinear finishing. See the README for RGB and registered mono-master instructions.

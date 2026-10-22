@@ -1,25 +1,26 @@
 # CCDASTRO Siril Workflow
 
-Version 0.5.0 — development release, October 20, 2026.
+Version 0.6.0 — development release, October 22, 2026.
 
 A standalone image-processing workflow for Siril, with Color & Tone controls, masks, curves and review of each processing pass. This project maintains its own source, presets, tests and versioning.
 
 ## Download, install and update
 
-Current release: **v0.5.0** (development release). [Release notes](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases/tag/v0.5.0) · [Windows installer](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases/download/v0.5.0/CCDASTRO-Siril-Workflow-0.5.0-Setup.exe).
+Current release: **v0.6.0** (development release). [Release notes](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases/tag/v0.6.0) · [Windows installer](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases/download/v0.6.0/CCDASTRO-Siril-Workflow-0.6.0-Setup.exe).
 
-Includes Color & Tone Studio and dedicated optional RC-Astro, GraXpert and SyQon controls when installed. Version 0.5.0 registers a CCDASTRO script menu and removes recognized older workflow paths from Siril settings; old extracted files remain preserved on disk.
+Includes Color & Tone Studio and dedicated optional RC-Astro, GraXpert and SyQon controls when installed. Version 0.6.0 registers a CCDASTRO script menu and removes recognized older workflow paths from Siril settings; old extracted files remain preserved on disk.
 
 [Download the Windows installer or ZIP](https://github.com/CCDASTRO/CCDASTRO-Siril-Workflow/releases). Use the Windows installer for first installation and later upgrades. See [INSTALL.md](INSTALL.md) for exact steps, migration from earlier ZIP copies, and troubleshooting. The workflow's **Check for updates** button finds new releases and opens their download page. Each installer uses a stable per-user folder and preserves separately saved images/presets.
 
 After installation, restart Siril and choose **Scripts > CCDASTRO > CCDASTRO_Siril_Workflow**.
 
-The v0.4.2 installer and CCDASTRO menu placement were confirmed working by a user on October 20, 2026. Version 0.5.0 adds the optional Lighthouse handoff; automated verification covers source preservation, refusal of unsaved sources/existing destinations, and separate-script discovery.
+The v0.4.2 installer and CCDASTRO menu placement were confirmed working by a user on October 22, 2026. Version 0.6.0 adds the optional Lighthouse handoff; automated verification covers source preservation, refusal of unsaved sources/existing destinations, and separate-script discovery.
 
 ## What works
 
 - Work on a copy of an open RGB or monochrome image.
 - Add, reorder and review individual processing passes; accept or discard each candidate.
+- Independent channel stretch with R/G/B target and amount sliders, individual channel views, RGB recombination review, and optional registered mono FITS inputs.
 - Linked automatic stretch, a simple background-plane fit, and green suppression.
 - Color & Tone Studio: live sampled before/after/mask/overlay views, hue presets and picker, feathered hue and tonal selections, inversion, amount, exposure, contrast, shadows/highlights, whites/blacks, saturation, vibrance, temperature/tint, and master/R/G/B curve sliders.
 - Review full-resolution Color & Tone output before accepting it. Use stretched data for these adjustments.
@@ -34,6 +35,18 @@ This is an initial development build. There is no unattended run-all, automatic 
 No third-party AI model, plugin or commercial license is bundled. Native AI, color-calibration and other optional commands depend on the host's installed tools, paths, models, licenses and preset schema. Native stretch and all three RC-Astro tools have been exercised on synthetic inputs; the other allowlisted native commands still need individual validation. An unsuccessful native command may leave a working image open for inspection.
 
 FITS is the portable interchange format. The original image/file is preserved. Existing output files are refused. FITS headers are preserved where supplied by the host; arbitrary host application state, layers and display settings are not serialized to FITS. Save through the host if its native project metadata is needed.
+
+## Independent channel stretch (linear input)
+
+Use **Independent channel stretch (linear RGB / mono masters)** before the final nonlinear stretch, instead of adding a linked stretch as well. Work from a linear RGB image, or select three already registered mono FITS masters for the R / G / B output slots. For SHO, assign SII to R, Ha to G and OIII to B; choose the mapping appropriate to your palette. This tool does not register images or infer filters. Matching dimensions alone do not prove registration.
+
+1. Confirm that the inputs are linear and registered. If loading masters, all three must be mono and have identical dimensions. Their source files remain unchanged; output uses the first master’s FITS header, with structural cards updated for RGB. Conflicting per-filter metadata is not merged.
+2. Start with the shared median target of **0.23**. Adjust each channel’s target (0.01–0.50) and stretch amount (0–100%) independently. A lower R target or amount can reduce red dominance. Amount zero leaves that channel unchanged.
+3. Click **Update preview**. Inspect Recombined RGB, each grayscale channel and Before RGB. Preview sampling uses the same fixed per-channel plan as the full-resolution result.
+4. Click **Review full-resolution result**, then **Accept candidate** or **Discard candidate** in the workflow. Nothing is committed before acceptance. The configured step is added to the workflow list for presets; previewing it again opens the review and requires linear confirmation again. Choose mono input files again for each new review; presets store controls, not image paths. Accepted reports record the loaded master paths when applicable.
+5. Continue with stretched-image finishing, Color & Tone or your optional finishing tools. Do not add another automatic stretch to the accepted result.
+
+Each channel uses a robust median/MAD black-point estimate and its own midtones transfer function, followed by its amount blend with the original channel. The Python builds estimate statistics on a grid of at most 512 × 512 samples. Processing is independent per channel and recombines the output planes into RGB. Applying those transforms to the channels of a linear RGB mapping is mathematically equivalent to stretching the same mapped mono planes before combination. Equal targets are an artistic balance choice: they change relative emission brightness and do not preserve calibrated flux ratios or guarantee a particular palette. Already stretched data should use Color & Tone instead.
 
 ## Installation
 
@@ -109,4 +122,4 @@ This is an assisted handoff with a manual Lighthouse launch. Automatic nested la
 
 The option is enabled only when an installed script is detected. Lighthouse is not bundled, imported or modified. The installed Siril port v1.0.0 credits **Yannick Dutertre (Cuiv)** and original Lighthouse author **Neven Krčmarek**, and declares GPL-3.0-or-later. Update it through Siril. See [Siril script installation](https://siril.readthedocs.io/en/stable/Scripts.html) and [Lighthouse Suite](https://www.lighthousesuite.org/).
 
-Verification for v0.5.0: 42 automated tests and isolated installer lifecycle checks passed. An isolated Siril 1.4.4 check detected the installed Lighthouse script, opened a 40×32 RGB handoff copy, and confirmed the source file bytes were unchanged. Lighthouse editing itself remains a separately launched user action.
+Verification for v0.6.0: 42 automated tests and isolated installer lifecycle checks passed. An isolated Siril 1.4.4 check detected the installed Lighthouse script, opened a 40×32 RGB handoff copy, and confirmed the source file bytes were unchanged. Lighthouse editing itself remains a separately launched user action.

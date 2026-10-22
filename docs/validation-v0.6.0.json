@@ -1,0 +1,15 @@
+{
+  "version": "0.6.0",
+  "date": "2026-10-22",
+  "unitAndQtTests": 51,
+  "unitAndQtPassed": true,
+  "installerLifecycle": "Isolated install, repeated upgrade, uninstall and personal-file preservation passed. No real host install was modified.",
+  "nativeHostScope": "New review tested with PyQt6 in the installed Siril Python runtime; no new host API calls were introduced.",
+  "sourcePreserved": true,
+  "monoMasters": "Three mono FITS planes loaded in RGB slot order; matching dimensions and explicit user registration confirmation required. First master header retained; no merge of conflicting filter metadata.",
+  "preview": "Sampled preview and full resolution use identical frozen per-channel plans.",
+  "artifacts": {
+    "CCDASTRO-Siril-Workflow-0.6.0-Setup.exe": "91ece0acfc9e6ccee6f25e89533cba9f97168d94b7fd8e715321c6ce962d9988",
+    "CCDASTRO-Siril-Workflow-0.6.0.zip": "54659d620e998ee828420a7aaa1ac5b49235753dadf3dab648a31ca1006d1261"
+  }
+}

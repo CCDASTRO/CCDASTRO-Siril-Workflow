@@ -1,3 +1,9 @@
+# v0.6.0 — Independent channel stretch
+
+Adds an optional reviewed final stretch for linear RGB or three registered mono FITS masters. R/G/B targets and amounts are independent, with individual channel and recombined previews. Shared starting target 0.23; sources are preserved and the full-resolution candidate requires explicit acceptance. Controls are saved in workflow presets; accepted reports record settings and selected master paths. Use this instead of an additional automatic stretch. Equal targets change relative emission balance; no alignment or physical color calibration is performed.
+
+Validated October 22, 2026: 51 unit/Qt tests pass, including source preservation, targets, amount blending, cancellation, fixed preview/full-resolution plans, FITS loading, explicit acceptance and replay. Windows installer lifecycle checks are recorded separately.
+
 # v0.5.0 — Optional Lighthouse finishing handoff
 
 - Discover the separately installed Lighthouse for Siril script, with a custom-path Browse option.

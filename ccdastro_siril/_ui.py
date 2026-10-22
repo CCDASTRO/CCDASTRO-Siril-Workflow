@@ -162,6 +162,7 @@ class WorkflowDialog(QDialog):
         generated=QHBoxLayout();root.addLayout(generated)
         self.use_stars=QPushButton('Recombine with generated stars');self.use_stars.setEnabled(False);self.use_stars.clicked.connect(self.recombine_generated);generated.addWidget(self.use_stars)
         self.save_stars=QPushButton('Save generated stars FITS');self.save_stars.setEnabled(False);self.save_stars.clicked.connect(self.export_generated_stars);generated.addWidget(self.save_stars)
+        channels=QPushButton('Independent channel stretch (linear RGB / mono masters)…');channels.clicked.connect(lambda:self.channel_stretch());root.addWidget(channels)
         self.update_button=QPushButton('Check for updates');self.update_button.clicked.connect(self.check_updates);root.addWidget(self.update_button)
         setup=QPushButton('Optional tools: locate / rescan');setup.clicked.connect(self.setup_optional_tools);ll.addWidget(setup)
         self.lighthouse_button=QPushButton('Prepare Lighthouse handoff…');self.lighthouse_button.clicked.connect(self.open_lighthouse);ll.addWidget(self.lighthouse_button)
@@ -280,6 +281,8 @@ class WorkflowDialog(QDialog):
     def preview_step(self):
         i=self.list.currentRow()
         if i<0:return
+        if self.steps[i].kind=='channel_stretch':
+            self.channel_stretch(self.steps[i].parameters,False);return
         self.discard();s=self.steps[i]
         try:
             if s.kind=='external':
@@ -302,6 +305,23 @@ class WorkflowDialog(QDialog):
             self.pending=image_array(a);self.pending_step=deepcopy(s);self.pending_meta=meta;self.accept_button.setEnabled(True);self.mode.setCurrentIndex(1);self.display()
             self.status.setText('Candidate ready. Accept commits only to the workflow copy; Discard keeps the previous result.')
         except Exception as e:self.error(e)
+    def channel_stretch(self,settings=None,add=True):
+        from ._channel_ui import ChannelStretchDialog
+        try:
+            parameters=None if settings is None else {k:v for k,v in settings.items() if k!='input_masters'}
+            d=ChannelStretchDialog(self.session.current,self.session.metadata,parameters,self)
+            if d.exec():
+                if add and len(self.steps)>=32:raise ValueError("Use at most 32 workflow steps.")
+                self.discard();p=deepcopy(d.settings)
+                if d.input_names:p['input_masters']=list(d.input_names)
+                self.pending=d.output;self.pending_step=Step('channel_stretch',p);self.pending_meta=deepcopy(d.metadata)
+                if add:
+                    self.steps.append(Step('channel_stretch',deepcopy(d.settings)));self.refresh();self.list.setCurrentRow(len(self.steps)-1)
+                elif 0<=self.list.currentRow()<len(self.steps):
+                    self.steps[self.list.currentRow()].parameters=deepcopy(d.settings);self.refresh()
+                self.accept_button.setEnabled(True);self.mode.setCurrentIndex(1);self.display()
+                self.status.setText('Full-resolution channel-stretch candidate ready. Accept or discard. Use this instead of a linked final stretch; avoid stretching twice.')
+        except Exception as error:self.error(error)
     def grade(self):
         d=ColorToneDialog(self.session.current,self)
         if d.exec():
@@ -353,7 +373,7 @@ class WorkflowDialog(QDialog):
             p=json.loads(Path(path).read_text(encoding='utf-8'))
             if p.get('schema')!=1 or p.get('host')!=self.host.title:raise ValueError('Preset belongs to a different host or schema.')
             steps=[Step(**s) for s in p['steps']]
-            if len(steps)>32 or any(s.kind not in ('stretch','background','green','native','color_tone','rcastro','external') for s in steps):raise ValueError('Invalid workflow steps.')
+            if len(steps)>32 or any(s.kind not in ('channel_stretch','stretch','background','green','native','color_tone','rcastro','external') for s in steps):raise ValueError('Invalid workflow steps.')
             for step in steps:
                 if not isinstance(step.parameters,dict):raise ValueError('Step parameters must be an object.')
                 if step.kind=='external':

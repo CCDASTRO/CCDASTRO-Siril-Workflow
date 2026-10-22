@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 import numpy as np
 
-VERSION = '0.5.0'
+VERSION = '0.6.0'
 
 def image_array(data):
     a = np.asarray(data)
@@ -168,6 +168,9 @@ class Step:
 def evaluate(data,step,cancel=lambda:False):
     p=step.parameters
     if step.kind=='color_tone': return color_tone(data,p,cancel)
+    if step.kind=='channel_stretch':
+        from ._channel_stretch import stretch
+        return stretch(data,**{k:v for k,v in p.items() if k!='input_masters'},cancel=cancel)
     if step.kind=='stretch': return linked_stretch(data,**p)
     if step.kind=='green': return suppress_green(data,**p)
     if step.kind=='background': return background_plane(data,**p)
